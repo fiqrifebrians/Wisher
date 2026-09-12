@@ -11,13 +11,13 @@
 <body class="dashboard-body">
     
     <!-- Sidebar Sinkronisasi Penuh di Halaman Collection -->
-    <aside class="sidebar collapsed" id="sidebar">
+    <aside class="sidebar collapsed" id="sidebar" style="width: 72px;">
         <div class="sidebar-toggle-btn" onclick="toggleSidebar()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
         </div>
         <div class="brand">
             <h2 class="brand-text hide-on-collapse">Wisher<span class="dot highlight-dot">.</span></h2>
-            <h2 class="brand-icon show-on-collapse">W<span class="dot highlight-dot">.</span></h2>
+            <h2 class="brand-icon show-on-collapse" style="display:none; color:#000000;">W<span class="dot" style="color:#ff3b3f !important;">.</span></h2>
         </div>
         
         <div class="menu flex-grow hide-on-collapse" style="margin-top:20px;">
@@ -45,8 +45,8 @@
                 <h1 id="current-collection-title">Loading Collection...</h1>
                 
                 <div style="display:flex; align-items:center; gap: 16px;">
-                    <div class="custom-select-wrapper">
-                        <select class="lang-select nav-btn" onchange="changeLang(this.value)">
+                    <div class="custom-select-wrapper dark-arrow-wrapper">
+                        <select class="lang-select nav-btn dark-arrow-select" onchange="changeLang(this.value)">
                             <option value="en">🇬🇧 EN</option>
                             <option value="id">🇮🇩 ID</option>
                         </select>
@@ -65,7 +65,7 @@
         </div>
     </main>
 
-    <!-- Modal Form (Add / Edit Item) -->
+    <!-- Modal Form (Add / Edit Item) - Perbaikan Logika Gambar Fallback ke Backend -->
     <div id="itemModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -123,7 +123,6 @@
 
     <!-- Modal Form (My Account) -->
     <div id="accountModal" class="modal-overlay">
-        <!-- Kode Modal Akun tetap utuh sama persis seperti dashboard -->
         <div class="modal-content">
             <div class="modal-header">
                 <h3 data-i18n="my_account">My Account</h3>

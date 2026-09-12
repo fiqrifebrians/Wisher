@@ -14,7 +14,6 @@ if (!currentCollection) {
 }
 if (!currentCollection.items) { currentCollection.items = []; }
 
-// Kamus Koleksi
 const i18nCol = {
     en: {
         my_collections: "My Collections", my_account: "My Account", sign_out: "Sign Out", back: "&larr; Back",
@@ -24,8 +23,7 @@ const i18nCol = {
         edit_password: "Edit Password", old_password: "Old Password", new_password: "New Password",
         confirm_new_password: "Confirm New Password", cancel: "Cancel", save_changes: "Save Changes",
         upload_device: "Upload from Devices", pass_criteria: "Password requires min 9 chars, 1 uppercase, 1 lowercase, 1 number.",
-        item_info: "Paste a link to auto-generate, or fill manually.",
-        empty_item: "Add Item"
+        item_info: "Paste a link to auto-generate, or fill manually.", empty_item: "Add Item"
     },
     id: {
         my_collections: "Koleksi Saya", my_account: "Akun Saya", sign_out: "Keluar", back: "&larr; Kembali",
@@ -35,16 +33,15 @@ const i18nCol = {
         edit_password: "Ubah Kata Sandi", old_password: "Kata Sandi Lama", new_password: "Kata Sandi Baru",
         confirm_new_password: "Konfirmasi Kata Sandi Baru", cancel: "Batal", save_changes: "Simpan Perubahan",
         upload_device: "Unggah dari Perangkat", pass_criteria: "Minimal 9 karakter, 1 huruf besar, 1 huruf kecil, 1 angka.",
-        item_info: "Masukkan tautan untuk otomatisasi, atau isi manual.",
-        empty_item: "Tambah Item"
+        item_info: "Masukkan tautan untuk otomatisasi, atau isi manual.", empty_item: "Tambah Item"
     }
 };
 
 const ICON_EDIT = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
 const ICON_DELETE = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+const ICON_CHEVRON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
 
 window.onload = () => {
-    // Sinkronisasi Judul Otomatis (State Riil)
     document.getElementById('current-collection-title').innerText = currentCollection.name;
     document.getElementById('display-username').innerText = currentUser;
     UI.loadProfileData();
@@ -65,7 +62,13 @@ function saveData() {
 
 function toggleSidebar() { UI.toggleSidebar(); }
 
-// Memanfaatkan sidebar di halaman ini sebagai navigasi cepat antar koleksi
+// Fitur Expand Dropdown Sidebar Collection
+function toggleColDropdown(colId) {
+    const ul = document.getElementById(`item-list-${colId}`);
+    if (ul) ul.classList.toggle('expanded');
+}
+
+// Navigasi Sidebar Penuh dengan Dropdown Chevron
 function renderSidebarNav() {
     const listContainer = document.getElementById('sidebar-collections');
     listContainer.innerHTML = '';
@@ -76,14 +79,30 @@ function renderSidebarNav() {
         header.className = `col-header ${col.id === collectionId ? 'active' : ''}`;
         header.innerHTML = `
             <span class="hide-on-collapse" style="flex:1;" onclick="window.location.href='collection.html?id=${col.id}'">${col.name}</span>
-            <span class="show-on-collapse" style="display:none;" onclick="window.location.href='collection.html?id=${col.id}'" title="${col.name}">${col.name.charAt(0)}</span>
+            <span class="show-on-collapse" style="display:none;" onclick="window.location.href='collection.html?id=${col.id}'" title="${(col.name || '').replace(/"/g, '&quot;')}">${col.name.charAt(0)}</span>
+            <div class="action-icons hide-on-collapse">
+                <button class="icon-btn" onclick="toggleColDropdown('${col.id}')" title="Expand">${ICON_CHEVRON}</button>
+            </div>
         `;
         li.appendChild(header);
+
+        if (col.items && col.items.length > 0) {
+            const ul = document.createElement('ul');
+            ul.id = `item-list-${col.id}`;
+            ul.className = `wl-list hide-on-collapse ${col.id === collectionId ? 'expanded' : ''}`; // Otomatis kebuka kalau sedang di koleksi itu
+            col.items.forEach(item => {
+                const itemLi = document.createElement('li');
+                itemLi.className = `wl-item`;
+                itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">- ${item.name}</span>`;
+                ul.appendChild(itemLi);
+            });
+            li.appendChild(ul);
+        }
         listContainer.appendChild(li);
     });
 }
 
-// --- LOGIKA FORM ITEM (CRUD & SYNC LINK) ---
+// --- LOGIKA FORM ITEM & SINKRONISASI LINK CERDAS ---
 let itemState = { isManualName: false, isManualImage: false, currentUrl: "", customImageData: null };
 
 const urlInput = document.getElementById('itemUrl');
@@ -138,7 +157,6 @@ function deleteItem(e, id) {
     }
 }
 
-// Event Sinkronisasi Pengubahan Gambar/Nama
 nameInput.addEventListener('input', () => { itemState.isManualName = nameInput.value.trim() !== ""; });
 imageInput.addEventListener('input', () => { 
     itemState.isManualImage = imageInput.value.trim() !== "";
@@ -157,14 +175,14 @@ function previewItemImage(event) {
     });
 }
 
-// EKSEKUSI AUTO-GENERATE LINK (CERDAS)
+// Sinkronisasi Link dengan Fallback Cerdas (Gambar Default Dihindari di Form)
 urlInput.addEventListener('input', (e) => {
     const newUrl = e.target.value.trim();
     if (newUrl && newUrl !== itemState.currentUrl && newUrl.startsWith('http')) {
         const data = Storage.simulateScrapeData(newUrl);
 
         if (!itemState.isManualName) { nameInput.value = data.scrapedName; }
-        if (!itemState.isManualImage) {
+        if (!itemState.isManualImage && data.scrapedImage !== "") {
             imageInput.value = data.scrapedImage;
             const preview = document.getElementById('imagePreview');
             preview.src = data.scrapedImage;
@@ -177,13 +195,17 @@ urlInput.addEventListener('input', (e) => {
     }
 });
 
+// Realokasi Fallback Generik di Background Proses Save
 function saveItem() {
     const name = nameInput.value.trim();
     const price = priceInput.value;
     if(!name || !price) { alert("Nama dan Harga wajib diisi!"); return; }
     
-    // Fallback Generik Otomatis jika kosong
-    const finalImageUrl = itemState.customImageData || imageInput.value || Storage.FALLBACK_IMAGE;
+    // Cek jika Gambar Kosong -> Tembak Generik di Background
+    let finalImageUrl = itemState.customImageData || imageInput.value.trim();
+    if (!finalImageUrl || finalImageUrl === "") {
+        finalImageUrl = Storage.FALLBACK_IMAGE;
+    }
     
     if (editingItemId) {
         const item = currentCollection.items.find(i => i.id === editingItemId);
@@ -200,7 +222,6 @@ function saveItem() {
     UI.closeModal('itemModal');
 }
 
-// Render UI Item Koleksi
 function renderCollection() {
     const content = document.getElementById('board-content');
     const lang = Storage.getLang();
@@ -218,11 +239,14 @@ function renderCollection() {
         if(item.currency==='CNY'||item.currency==='JPY') currencySymbol='¥';
         if(item.currency==='IDR') currencySymbol='Rp';
 
+        // Pencegahan Sintaks Bocor pada alt string interpolasi
+        const safeName = item.name ? item.name.replace(/"/g, '&quot;') : 'Product';
+
         html += `
             <div class="item-card">
                 <button class="edit-icon-card" onclick="editItem(event, '${item.id}')">${ICON_EDIT}</button>
                 <button class="delete-icon-card" onclick="deleteItem(event, '${item.id}')">${ICON_DELETE}</button>
-                <img class="item-img" src="${item.imageUrl}" alt="${item.name}">
+                <img class="item-img" src="${item.imageUrl}" alt="${safeName}">
                 <div class="item-details">
                     <h4>${item.name}</h4>
                     <p class="item-price">${currencySymbol} ${item.price.toLocaleString()}</p>

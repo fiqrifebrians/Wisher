@@ -28,6 +28,7 @@ const i18nDash = {
 
 const ICON_EDIT = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
 const ICON_DELETE = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+const ICON_CHEVRON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
 
 window.onload = () => {
     document.getElementById('display-username').innerText = currentUser;
@@ -51,7 +52,7 @@ function saveData() {
 
 function toggleSidebar() { UI.toggleSidebar(); }
 
-// --- TWO-WAY DRAG AND DROP SINKRONISASI ---
+// --- TWO-WAY DRAG AND DROP SINKRONISASI PADA KARTU DASHBOARD ---
 function handleDragStartCol(e, colId) {
     draggedColId = colId;
     e.dataTransfer.effectAllowed = 'move';
@@ -72,10 +73,11 @@ function handleDropCol(e, targetColId) {
     const draggedIndex = collections.findIndex(c => c.id === draggedColId);
     const targetIndex = collections.findIndex(c => c.id === targetColId);
 
+    // Swap / Move Logika
     const [movedCol] = collections.splice(draggedIndex, 1);
     collections.splice(targetIndex, 0, movedCol);
 
-    saveData(); // Save & Sync Render
+    saveData(); // Sinkronisasi otomatis merefleksikan perubahan ke Sidebar juga!
 }
 function handleDragEndCol(e) {
     e.target.classList.remove('dragging');
@@ -83,7 +85,13 @@ function handleDragEndCol(e) {
     document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
 }
 
-// Render Sidebar dengan D&D
+// Fitur Expand Dropdown Menu Koleksi di Sidebar
+function toggleColDropdown(colId) {
+    const ul = document.getElementById(`item-list-${colId}`);
+    if (ul) ul.classList.toggle('expanded');
+}
+
+// Render Sidebar dengan Penambahan Tombol Dropdown
 function renderSidebar() {
     const listContainer = document.getElementById('sidebar-collections');
     listContainer.innerHTML = '';
@@ -91,29 +99,40 @@ function renderSidebar() {
     collections.forEach(col => {
         const li = document.createElement('li');
         li.className = 'col-item-wrapper';
-        li.setAttribute('draggable', 'true');
-        li.ondragstart = (e) => handleDragStartCol(e, col.id);
-        li.ondragover = handleDragOverCol;
-        li.ondragleave = handleDragLeaveCol;
-        li.ondrop = (e) => handleDropCol(e, col.id);
-        li.ondragend = handleDragEndCol;
         
         const header = document.createElement('div');
         header.className = `col-header`;
         header.innerHTML = `
             <span class="hide-on-collapse" style="flex:1;" onclick="window.location.href='collection.html?id=${col.id}'">${col.name}</span>
-            <span class="show-on-collapse" style="display:none;" onclick="window.location.href='collection.html?id=${col.id}'" title="${col.name}">${col.name.charAt(0)}</span>
+            <span class="show-on-collapse" style="display:none;" onclick="window.location.href='collection.html?id=${col.id}'" title="${(col.name || '').replace(/"/g, '&quot;')}">${col.name.charAt(0)}</span>
             <div class="action-icons hide-on-collapse">
+                <!-- Dropdown Button Chevron Arrow -->
+                <button class="icon-btn" onclick="toggleColDropdown('${col.id}')" title="Expand">${ICON_CHEVRON}</button>
                 <button class="icon-btn" onclick="openCollectionModal('${col.id}')" title="Edit">${ICON_EDIT}</button>
                 <button class="icon-btn delete" onclick="deleteCollection('${col.id}')" title="Delete">${ICON_DELETE}</button>
             </div>
         `;
         li.appendChild(header);
+
+        // Sub-list untuk item di sidebar (Dropdown)
+        if (col.items && col.items.length > 0) {
+            const ul = document.createElement('ul');
+            ul.id = `item-list-${col.id}`;
+            ul.className = `wl-list hide-on-collapse`;
+            col.items.forEach(item => {
+                const itemLi = document.createElement('li');
+                itemLi.className = `wl-item`;
+                itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">- ${item.name}</span>`;
+                ul.appendChild(itemLi);
+            });
+            li.appendChild(ul);
+        }
+
         listContainer.appendChild(li);
     });
 }
 
-// Render Konten Dashboard dengan Collage & D&D
+// Render Konten Dashboard Utama & Collage Gambar (Bebas Bug Sintaks)
 function renderMainContent() {
     const content = document.getElementById('board-content');
     const lang = Storage.getLang();
@@ -130,16 +149,19 @@ function renderMainContent() {
         // Logika Dynamic Photo Collage Grid Square
         let collageHtml = `<div class="collection-card-collage collage-${Math.min(itemCount, 4)}">`;
         if (itemCount === 0) {
-            collageHtml += `<img src="${Storage.FALLBACK_IMAGE}" class="collage-img" alt="Empty" style="padding: 20px;">`;
+            // Gunakan SVG murni tanpa tag img bocor jika kosong
+            collageHtml += `<img src="${Storage.FALLBACK_IMAGE}" class="collage-img" alt="Empty">`;
         } else {
             const displayItems = col.items.slice(0, 4);
             displayItems.forEach((item, idx) => {
-                collageHtml += `<img src="${item.imageUrl}" class="collage-img img-${idx}" alt="${item.name}">`;
+                // Pencegahan String Interpolation Bug pada alt attribute
+                const safeName = item.name ? item.name.replace(/"/g, '&quot;') : 'Product';
+                collageHtml += `<img src="${item.imageUrl}" class="collage-img img-${idx}" alt="${safeName}">`;
             });
         }
         collageHtml += `</div>`;
 
-        // Card dengan D&D
+        // Card dengan Two-Way D&D Sinkronisasi
         html += `
             <div class="collection-card" draggable="true" 
                 ondragstart="handleDragStartCol(event, '${col.id}')"
@@ -200,7 +222,7 @@ function saveCollection() {
     UI.closeModal('collectionModal');
 }
 
-// Akun Logika
+// --- AKUN LOGIC ---
 function openMyAccount() {
     const db = Storage.getUsers();
     const userObj = db.find(u => u.username === currentUser);

@@ -16,7 +16,8 @@
         </div>
         <div class="brand">
             <h2 class="brand-text hide-on-collapse">Wisher<span class="dot highlight-dot">.</span></h2>
-            <h2 class="brand-icon show-on-collapse">W<span class="dot highlight-dot">.</span></h2>
+            <!-- Membersihkan Elemen Overlap dan Kombinasi Inisial Logo W. Hitam-Merah (#000000 & #ff3b3f) -->
+            <h2 class="brand-icon show-on-collapse" style="display:none; color:#000000;">W<span class="dot" style="color:#ff3b3f !important;">.</span></h2>
         </div>
         <div class="sidebar-actions hide-on-collapse">
             <button class="primary-btn" onclick="openCollectionModal()" data-i18n="add_collection">+ Add Collection</button>
@@ -45,8 +46,8 @@
                 <h1 id="current-list-title" data-i18n="my_collections">My Collections</h1>
             </div>
             <div class="nav-actions">
-                <div class="custom-select-wrapper">
-                    <select class="lang-select nav-btn" onchange="changeLang(this.value)">
+                <div class="custom-select-wrapper dark-arrow-wrapper">
+                    <select class="lang-select nav-btn dark-arrow-select" onchange="changeLang(this.value)">
                         <option value="en">🇬🇧 EN</option>
                         <option value="id">🇮🇩 ID</option>
                     </select>
@@ -82,8 +83,7 @@
         </div>
     </div>
 
-    <!-- Modal Form (My Account) remains identical to earlier code structure -->
-    <!-- (Included fully for completeness) -->
+    <!-- Modal Form (My Account) -->
     <div id="accountModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
