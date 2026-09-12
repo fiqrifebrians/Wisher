@@ -4,22 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wisher - Collection View</title>
-    <!-- Favicon Configuration -->
-    <link rel="icon" href="assets/wisher-logo.png">
+    <link rel="icon" href="assets/mini-logo.png">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-body">
     
-    <!-- Sidebar -->
     <aside class="sidebar collapsed" id="sidebar" style="width: 72px;">
         <div class="brand">
-            <h2 class="brand-icon show-on-collapse" style="color:var(--primary-red);">W.</h2>
+            <!-- Tampilan Inisial Collapsed -->
+            <h2 class="brand-icon show-on-collapse" style="color:#000000; margin:0;">W<span class="dot" style="color:var(--primary-red) !important;">.</span></h2>
         </div>
         <div class="flex-grow"></div>
         <div class="sidebar-profile">
             <div class="profile-trigger" onclick="toggleProfileMenu()">
-                <img src="https://ui-avatars.com/api/?name=User&background=ff3b30&color=fff" id="profile-avatar" alt="Profile">
+                <img src="https://ui-avatars.com/api/?name=User&background=f97316&color=fff" id="profile-avatar" alt="Profile">
             </div>
             <div class="profile-dropdown" id="profileDropdown">
                 <button onclick="openMyAccount()" data-i18n="my_account">My Account</button>
@@ -28,21 +27,21 @@
         </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="main-content">
-        <!-- Header dengan Tombol Back di Kanan -->
         <header class="top-nav">
-            <div style="display:flex; align-items:center; gap: 16px;">
-                <h1 id="current-collection-title">Loading Collection...</h1>
-            </div>
-            <div class="nav-actions">
-                <div class="custom-select-wrapper compact">
-                    <select class="lang-select compact" onchange="changeLang(this.value)" style="border-color: var(--text-gray); color: var(--text-dark);">
-                        <option value="en">🇬🇧 EN</option>
-                        <option value="id">🇮🇩 ID</option>
-                    </select>
+            <div style="display:flex; justify-content:space-between; align-items:center; width: 100%;">
+                <!-- Teks default dikosongkan agar tersinkronisasi dinamis via JS -->
+                <h1 id="current-collection-title"></h1>
+                
+                <div style="display:flex; align-items:center; gap: 16px;">
+                    <div class="custom-select-wrapper dark-arrow-wrapper">
+                        <select class="lang-select nav-btn dark-arrow-select" onchange="changeLang(this.value)">
+                            <option value="en">🇬🇧 EN</option>
+                            <option value="id">🇮🇩 ID</option>
+                        </select>
+                    </div>
+                    <button class="secondary-btn" onclick="window.location.href='dashboard.html'" style="width: auto; padding: 10px 20px;" data-i18n="back">&larr; Back</button>
                 </div>
-                <button class="secondary-btn" onclick="window.location.href='dashboard.html'" style="width: auto; padding: 10px 20px;" data-i18n="back">&larr; Back</button>
             </div>
         </header>
 
@@ -55,7 +54,7 @@
         </div>
     </main>
 
-    <!-- Modal Add / Edit Item (Fleksibilitas Upload & Currency Ekspansi) -->
+    <!-- Modal Form (Add / Edit Item) -->
     <div id="itemModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -75,7 +74,6 @@
                     <input type="text" id="itemName" placeholder="Enter item name">
                 </div>
 
-                <!-- Input Gambar File & Link -->
                 <div class="input-group">
                     <label data-i18n="image_source">Image Source</label>
                     <div style="display: flex; gap: 12px;">
@@ -86,7 +84,7 @@
                 </div>
                 <img id="imagePreview" class="image-preview" src="" alt="Preview" style="display:none;">
 
-                <!-- Layout Harga & Ekspansi Currency Baru -->
+                <!-- Layout Harga & Ekspansi Mata Uang Sesuai Instruksi -->
                 <div class="input-row">
                     <div class="input-group" style="flex: 0 0 110px;">
                         <label data-i18n="currency">Currency</label>
@@ -114,6 +112,7 @@
 
     <!-- Modal Form (My Account) -->
     <div id="accountModal" class="modal-overlay">
+        <!-- Kode Modal Akun tetap utuh -->
         <div class="modal-content">
             <div class="modal-header">
                 <h3 data-i18n="my_account">My Account</h3>
@@ -121,7 +120,7 @@
             </div>
             <div class="modal-body">
                 <div class="profile-upload-section" style="text-align:center; margin-bottom: 24px;">
-                    <img id="accPreviewPic" src="https://ui-avatars.com/api/?name=User&background=ff3b30&color=fff" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin-bottom:12px; border: 2px solid var(--border-color);">
+                    <img id="accPreviewPic" src="https://ui-avatars.com/api/?name=User&background=f97316&color=fff" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin-bottom:12px; border: 2px solid var(--border-color);">
                     <input type="file" id="accProfilePhoto" accept="image/*" style="display:none;" onchange="UI.previewImage(event, 'accPreviewPic')">
                     <br>
                     <button class="secondary-btn" onclick="document.getElementById('accProfilePhoto').click()" style="padding:8px 16px; font-size:13px; width:auto;" data-i18n="upload_device">Upload from Devices</button>

@@ -7,7 +7,7 @@ let editingCollectionId = null;
 // Kamus Dashboard
 const i18nDash = {
     en: {
-        my_collections: "MY COLLECTIONS", add_collection: "+ Add Collection",
+        my_collections: "My Collections", add_collection: "+ Add Collection",
         my_account: "My Account", sign_out: "Sign Out", collection_name: "Collection Name",
         save_collection: "Save Collection", username: "Username", email: "Email",
         edit_password: "Edit Password", old_password: "Old Password", new_password: "New Password",
@@ -16,7 +16,7 @@ const i18nDash = {
         empty_col: "Add Collection"
     },
     id: {
-        my_collections: "KOLEKSI SAYA", add_collection: "+ Tambah Koleksi",
+        my_collections: "Koleksi Saya", add_collection: "+ Tambah Koleksi",
         my_account: "Akun Saya", sign_out: "Keluar", collection_name: "Nama Koleksi",
         save_collection: "Simpan Koleksi", username: "Nama Pengguna", email: "Email",
         edit_password: "Ubah Kata Sandi", old_password: "Kata Sandi Lama", new_password: "Kata Sandi Baru",
@@ -28,6 +28,7 @@ const i18nDash = {
 
 const ICON_EDIT = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
 const ICON_DELETE = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+const ICON_CHEVRON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
 
 window.onload = () => {
     document.getElementById('display-username').innerText = currentUser;
@@ -53,7 +54,13 @@ function toggleSidebar() { UI.toggleSidebar(); }
 function toggleProfileMenu() { UI.toggleProfileMenu(); }
 function closeModal(id) { UI.closeModal(id); }
 
-// Render Sidebar (Hanya List Collections)
+// Toggle Dropdown List Item pada Sidebar
+function toggleColDropdown(colId) {
+    const ul = document.getElementById(`item-list-${colId}`);
+    if (ul) ul.classList.toggle('expanded');
+}
+
+// Render Sidebar: Koleksi -> Item Expandable
 function renderSidebar() {
     const listContainer = document.getElementById('sidebar-collections');
     listContainer.innerHTML = '';
@@ -61,22 +68,39 @@ function renderSidebar() {
     collections.forEach(col => {
         const li = document.createElement('li');
         li.className = 'col-item-wrapper';
+        
         const header = document.createElement('div');
         header.className = `col-header`;
         header.innerHTML = `
             <span class="hide-on-collapse" style="flex:1;" onclick="window.location.href='collection.html?id=${col.id}'">${col.name}</span>
             <span class="show-on-collapse" style="display:none;" onclick="window.location.href='collection.html?id=${col.id}'" title="${col.name}">${col.name.charAt(0)}</span>
             <div class="action-icons hide-on-collapse">
+                <button class="icon-btn" onclick="toggleColDropdown('${col.id}')" title="Expand">${ICON_CHEVRON}</button>
                 <button class="icon-btn" onclick="openCollectionModal('${col.id}')" title="Edit">${ICON_EDIT}</button>
                 <button class="icon-btn delete" onclick="deleteCollection('${col.id}')" title="Delete">${ICON_DELETE}</button>
             </div>
         `;
         li.appendChild(header);
+
+        // Sub-list untuk item di sidebar
+        if (col.items && col.items.length > 0) {
+            const ul = document.createElement('ul');
+            ul.id = `item-list-${col.id}`;
+            ul.className = `wl-list hide-on-collapse`;
+            col.items.forEach(item => {
+                const itemLi = document.createElement('li');
+                itemLi.className = `wl-item`;
+                itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${item.name}">- ${item.name}</span>`;
+                ul.appendChild(itemLi);
+            });
+            li.appendChild(ul);
+        }
+
         listContainer.appendChild(li);
     });
 }
 
-// Render Konten Dashboard Utama
+// Render Konten Dashboard Utama & Collage Gambar
 function renderMainContent() {
     const content = document.getElementById('board-content');
     const lang = Storage.getLang();
@@ -89,10 +113,24 @@ function renderMainContent() {
     let html = '<div class="collections-grid">';
     collections.forEach(col => {
         const itemCount = col.items ? col.items.length : 0;
+        
+        // Logika Grid Collage Foto
+        let collageHtml = `<div class="collection-card-collage collage-${Math.min(itemCount, 4)}">`;
+        if (itemCount === 0) {
+            collageHtml += `<div class="collage-img" style="background:var(--border-color);"></div>`;
+        } else {
+            const displayItems = col.items.slice(0, 4);
+            displayItems.forEach((item, idx) => {
+                collageHtml += `<img src="${item.imageUrl}" class="collage-img img-${idx}" alt="${item.name}">`;
+            });
+        }
+        collageHtml += `</div>`;
+
         html += `
             <div class="collection-card" onclick="window.location.href='collection.html?id=${col.id}'">
                 <button class="edit-icon-card" onclick="editCollection(event, '${col.id}')">${ICON_EDIT}</button>
                 <button class="delete-icon-card" onclick="deleteCollectionMain(event, '${col.id}')">${ICON_DELETE}</button>
+                ${collageHtml}
                 <h3>${col.name}</h3>
                 <p>${itemCount} Items</p>
             </div>
