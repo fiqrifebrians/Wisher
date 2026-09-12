@@ -14,13 +14,7 @@
         <div class="brand">
             <h2 class="brand-text" style="color:var(--text-dark);">Wisher<span class="dot" style="color:var(--primary-red);">.</span></h2>
         </div>
-        <button class="primary-btn new-list-btn" onclick="createNewWishlist()" data-i18n="new_wishlist">+ New Wishlist</button>
-        <div class="menu flex-grow">
-            <p class="menu-label" data-i18n="my_wishlists">MY WISHLISTS</p>
-            <ul id="wishlist-menu">
-                <!-- Dynamically populated via JS -->
-            </ul>
-        </div>
+        <div class="flex-grow"></div>
         
         <!-- Sidebar Profile with Dropdown -->
         <div class="sidebar-profile">
@@ -29,8 +23,8 @@
                 <span id="display-username" class="profile-name">User</span>
             </div>
             <div class="profile-dropdown" id="profileDropdown">
-                <button onclick="openMyAccount()" data-i18n="my_account">My Account</button>
-                <button class="text-red" onclick="logout()" data-i18n="sign_out">Sign Out</button>
+                <button onclick="openMyAccount()">My Account</button>
+                <button class="text-red" onclick="logout()">Sign Out</button>
             </div>
         </div>
     </aside>
@@ -47,87 +41,32 @@
             </div>
         </header>
 
-        <div id="board-actions-container" class="board-actions" style="display:none;">
-            <button class="secondary-btn" onclick="openCollectionModal()" data-i18n="add_collection">+ Add Collection</button>
-            <button class="secondary-btn" onclick="openModal()" data-i18n="add_item">+ Add Item</button>
+        <!-- Tombol Aksi Utama di Konten -->
+        <div class="board-actions">
+            <button class="primary-btn" onclick="openCollectionModal()" style="width: auto;">+ Add New Collection</button>
         </div>
 
-        <!-- Collections and Items Render Area -->
+        <!-- Collections Area -->
         <div id="board-content" class="board-content">
-            <!-- Dynamically populated via JS -->
+            <!-- Dynamically populated Collections via JS -->
         </div>
     </main>
 
-    <!-- Modal Form (Input Item Logic) -->
-    <div id="itemModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 data-i18n="add_edit_item">Add / Edit Item</h3>
-                <span class="close-btn" onclick="closeModal('itemModal')">&times;</span>
-            </div>
-            <div class="modal-body">
-                <p class="info-text" data-i18n="item_info">Paste a link to auto-generate, or fill manually.</p>
-                
-                <div class="input-group">
-                    <label data-i18n="link_url">Online Link (URL)</label>
-                    <input type="url" id="itemUrl" placeholder="https://store.com/product...">
-                </div>
-
-                <div class="input-group">
-                    <label data-i18n="item_name">Item Name</label>
-                    <input type="text" id="itemName" placeholder="Enter item name">
-                </div>
-
-                <div class="input-group">
-                    <label data-i18n="image_url">Image URL (Customizable)</label>
-                    <input type="url" id="itemImage" placeholder="https://image-link.com/photo.jpg">
-                </div>
-                <img id="imagePreview" class="image-preview" src="" alt="Preview" style="display:none;">
-
-                <div class="input-row">
-                    <div class="input-group">
-                        <label data-i18n="currency">Currency</label>
-                        <select id="itemCurrency">
-                            <option value="IDR">IDR</option>
-                            <option value="USD">USD</option>
-                            <option value="EUR">EUR</option>
-                        </select>
-                    </div>
-                    <div class="input-group" style="flex: 2;">
-                        <label data-i18n="price">Price</label>
-                        <input type="number" id="itemPrice" placeholder="0">
-                    </div>
-                </div>
-                
-                <div class="input-group">
-                    <label data-i18n="collection">Collection</label>
-                    <select id="itemCollection">
-                        <option value="uncategorized" data-i18n="no_collection">No Collection</option>
-                        <!-- Dynamic Collections here -->
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="primary-btn" onclick="saveItem()" data-i18n="save_item">Save Item</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Modal Form (Add Collection) -->
     <div id="collectionModal" class="modal-overlay">
-        <div class="modal-content collection-modal">
+        <div class="modal-content" style="max-width: 400px;">
             <div class="modal-header">
-                <h3 data-i18n="add_new_collection">Add New Collection</h3>
+                <h3>Add New Collection</h3>
                 <span class="close-btn" onclick="closeModal('collectionModal')">&times;</span>
             </div>
             <div class="modal-body">
                 <div class="input-group">
-                    <label data-i18n="collection_name">Collection Name</label>
+                    <label>Collection Name</label>
                     <input type="text" id="collectionName" placeholder="E.g., Dream Gadgets">
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="primary-btn" onclick="saveCollection()" data-i18n="save_collection">Save Collection</button>
+                <button class="primary-btn" onclick="saveCollection()">Save Collection</button>
             </div>
         </div>
     </div>
@@ -136,41 +75,41 @@
     <div id="accountModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 data-i18n="my_account">My Account</h3>
+                <h3>My Account</h3>
                 <span class="close-btn" onclick="closeModal('accountModal')">&times;</span>
             </div>
             <div class="modal-body">
                 <div class="input-group">
-                    <label data-i18n="username">Username</label>
+                    <label>Username</label>
                     <input type="text" id="accUsername" disabled>
                 </div>
                 <div class="input-group">
-                    <label data-i18n="email">Email</label>
+                    <label>Email</label>
                     <input type="email" id="accEmail">
                 </div>
                 
                 <div class="edit-password-section">
-                    <button class="secondary-btn" id="btnEditPassword" onclick="toggleEditPassword()" data-i18n="edit_password" style="width:100%; margin-bottom:16px;">Edit Password</button>
+                    <button class="secondary-btn" id="btnEditPassword" onclick="toggleEditPassword()" style="margin-bottom:16px;">Edit Password</button>
                     
                     <div id="passwordFields" style="display:none;">
                         <div class="input-group">
-                            <label data-i18n="old_password">Old Password</label>
+                            <label>Old Password</label>
                             <input type="password" id="accOldPassword">
                         </div>
                         <div class="input-group">
-                            <label data-i18n="new_password">New Password</label>
+                            <label>New Password</label>
                             <input type="password" id="accNewPassword" oninput="validateAccPassword()">
-                            <p id="acc-error" class="error-text" data-i18n="pass_criteria">Password requires min 9 chars, 1 uppercase, 1 lowercase, 1 number.</p>
+                            <p id="acc-error" class="error-text">Password requires min 9 chars, 1 uppercase, 1 lowercase, 1 number.</p>
                         </div>
                         <div class="input-group">
-                            <label data-i18n="confirm_new_password">Confirm New Password</label>
+                            <label>Confirm New Password</label>
                             <input type="password" id="accConfirmPassword">
                         </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="primary-btn" onclick="saveAccount()" data-i18n="save_changes">Save Changes</button>
+                <button class="primary-btn" onclick="saveAccount()">Save Changes</button>
             </div>
         </div>
     </div>

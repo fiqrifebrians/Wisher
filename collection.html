@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wisher - Collection View</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-body">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="brand">
+            <h2 class="brand-text" style="color:var(--text-dark);">Wisher<span class="dot" style="color:var(--primary-red);">.</span></h2>
+        </div>
+        <div class="flex-grow"></div>
+        <div class="sidebar-profile">
+            <div class="profile-trigger">
+                <img src="https://ui-avatars.com/api/?name=User&background=ff3b30&color=fff" id="profile-avatar" alt="Profile">
+                <span id="display-username" class="profile-name">User</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-nav">
+            <div style="display:flex; align-items:center; gap: 16px;">
+                <button class="secondary-btn" onclick="window.location.href='dashboard.html'" style="padding: 10px 16px; border-radius: 8px;">&larr; Back</button>
+                <h1 id="current-collection-title">Loading Collection...</h1>
+            </div>
+        </header>
+
+        <div class="board-actions">
+            <button class="primary-btn" onclick="openWishlistModal()" style="width: auto;">+ Add Wishlist</button>
+            <button class="secondary-btn" onclick="openItemModal()" style="width: auto;">+ Add Item</button>
+        </div>
+
+        <div id="board-content" class="board-content">
+            <!-- Dynamically populated Wishlists & Items -->
+        </div>
+    </main>
+
+    <!-- Modal Add Wishlist -->
+    <div id="wishlistModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3>Add New Wishlist</h3>
+                <span class="close-btn" onclick="closeModal('wishlistModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Wishlist Name</label>
+                    <input type="text" id="wishlistName" placeholder="E.g., Work Setup">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="primary-btn" onclick="saveWishlist()">Save Wishlist</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Add / Edit Item (Dengan Logika Sinkronisasi Ketat) -->
+    <div id="itemModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Item</h3>
+                <span class="close-btn" onclick="closeModal('itemModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p class="info-text">Masukkan link untuk auto-generate harga/nama, atau isi manual.</p>
+                
+                <div class="input-group">
+                    <label>Online Link (URL)</label>
+                    <input type="url" id="itemUrl" placeholder="https://store.com/product...">
+                </div>
+
+                <div class="input-group">
+                    <label>Item Name</label>
+                    <input type="text" id="itemName" placeholder="Enter item name">
+                </div>
+
+                <div class="input-group">
+                    <label>Image URL</label>
+                    <input type="url" id="itemImage" placeholder="https://image-link.com/photo.jpg">
+                </div>
+                <img id="imagePreview" class="image-preview" src="" alt="Preview" style="display:none;">
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Currency</label>
+                        <select id="itemCurrency">
+                            <option value="IDR">IDR</option>
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="flex: 2;">
+                        <label>Price</label>
+                        <input type="number" id="itemPrice" placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Select Wishlist</label>
+                    <select id="itemWishlist">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="primary-btn" onclick="saveItem()">Save Item</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/collection.js"></script>
+</body>
+</html>
