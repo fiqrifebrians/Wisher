@@ -156,7 +156,7 @@ function renderMainContent() {
         }
         collageHtml += `</div>`;
 
-        // Modifikasi HTML agar Card Actions (Edit/Delete) berada di posisi paling bawah
+        // Integrasi Tampilan Inline Baru untuk Dashboard Collection Card
         html += `
             <div class="collection-card" draggable="true" 
                 ondragstart="handleDragStartCol(event, '${col.id}')"
@@ -166,13 +166,15 @@ function renderMainContent() {
                 ondragend="handleDragEndCol(event)"
                 onclick="window.location.href='collection.html?id=${col.id}'">
                 ${collageHtml}
-                <div style="flex-grow: 1;">
-                    <h3>${col.name}</h3>
-                    <p>${itemCount} Items</p>
-                </div>
-                <div class="card-actions" onclick="event.stopPropagation()">
-                    <button class="card-action-btn" onclick="editCollection(event, '${col.id}')" title="Edit">${ICON_EDIT}</button>
-                    <button class="card-action-btn delete-btn" onclick="deleteCollectionMain(event, '${col.id}')" title="Delete">${ICON_DELETE}</button>
+                <div class="card-footer-inline">
+                    <div class="card-text-info">
+                        <h3>${col.name}</h3>
+                        <p>${itemCount} Items</p>
+                    </div>
+                    <div class="card-actions-inline" onclick="event.stopPropagation()">
+                        <button class="card-action-btn" onclick="editCollection(event, '${col.id}')" title="Edit">${ICON_EDIT}</button>
+                        <button class="card-action-btn delete-btn" onclick="deleteCollectionMain(event, '${col.id}')" title="Delete">${ICON_DELETE}</button>
+                    </div>
                 </div>
             </div>
         `;

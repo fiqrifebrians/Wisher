@@ -91,7 +91,7 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 .error-text { display: none; color: var(--primary-red); font-size: 12px; margin-top: 6px; }
 .error-text.active { display: block; animation: fadeIn 0.3s ease; }
 
-/* --- AUTH PAGES STYLING (MEMPERBAIKI BUG TAMPILAN FULL-WIDTH) --- */
+/* --- AUTH PAGES STYLING --- */
 .auth-body { display: flex; justify-content: center; align-items: center; height: 100vh; position: relative; background-color: var(--bg-light); }
 .lang-switcher-auth { position: absolute; top: 24px; right: 24px; z-index: 10; }
 .auth-container { background: var(--bg-white); padding: 40px; border-radius: 16px; box-shadow: var(--shadow-md); width: 100%; max-width: 400px; position: relative; }
@@ -190,7 +190,9 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 }
 .empty-suggestion-50:hover { opacity: 1; border-color: var(--primary-red); color: var(--primary-red); background: rgba(220, 38, 38, 0.05); }
 
-/* --- CARD AESTHETICS & ACTIONS AT BOTTOM --- */
+
+/* --- CARD AESTHETICS & INLINE FOOTER ALIGNMENTS --- */
+
 .collections-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
 .collection-card {
     background: var(--bg-white); border-radius: 16px; padding: 20px;
@@ -200,8 +202,6 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 }
 .collection-card:active { cursor: grabbing; }
 .collection-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--primary-red); }
-.collection-card h3 { font-size: 18px; color: var(--text-dark); margin: 0 0 4px 0; }
-.collection-card p { font-size: 13px; color: var(--text-gray); margin: 0; font-weight: 500; flex-grow: 1; }
 
 .collection-card-collage { width: 100%; aspect-ratio: 1 / 1; border-radius: 12px; overflow: hidden; display: grid; gap: 2px; margin-bottom: 16px; background: var(--bg-light); }
 .collage-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
@@ -215,18 +215,26 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 .item-card { background: var(--bg-white); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-sm); transition: var(--transition); border: 1px solid var(--border-color); position: relative; display: flex; flex-direction: column; cursor: pointer;}
 .item-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: rgba(220, 38, 38, 0.3); }
 .item-img { width: 100%; aspect-ratio: 1 / 1; background-size: cover; background-position: center; background-color: var(--bg-light); object-fit: cover; }
-.item-details { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
+.item-details { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between;}
 .item-details h4 { font-size: 16px; margin-bottom: 8px; color: var(--text-dark); }
-.item-price { font-weight: 700; color: var(--primary-red); margin-bottom: 16px; }
+.item-price { font-weight: 700; color: var(--primary-red); margin-bottom: 0px; }
 .item-link { display: inline-block; font-size: 14px; color: var(--text-gray); font-weight: 600; transition: var(--transition); }
 .item-link:hover { color: var(--primary-red); }
 
-/* Tombol Edit/Delete Di Paling Bawah Kartu */
-.card-actions {
-    display: flex; justify-content: flex-end; gap: 8px;
-    padding-top: 16px; margin-top: 16px;
-    border-top: 1px solid var(--border-color); width: 100%;
+/* Tombol Edit/Delete Inline (Sejajar dengan Judul Koleksi / Link Item) */
+.card-footer-inline {
+    display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: auto;
 }
+.card-text-info { text-align: left; display: flex; flex-direction: column; justify-content: center; }
+.card-text-info h3 { font-size: 18px; color: var(--text-dark); margin: 0 0 4px 0 !important; }
+.card-text-info p { font-size: 13px; color: var(--text-gray); margin: 0; font-weight: 500; }
+
+.item-footer-inline {
+    display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 16px;
+}
+
+.card-actions-inline { display: flex; gap: 8px; align-items: center; }
+
 .card-action-btn {
     background: transparent; border: 1px solid var(--border-color);
     border-radius: 8px; padding: 6px; color: var(--text-gray);
