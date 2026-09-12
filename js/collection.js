@@ -7,7 +7,6 @@ const collectionId = urlParams.get('id');
 let collections = Storage.getCollections();
 let currentCollection = collections.find(c => c.id === collectionId);
 let editingItemId = null;
-let editingCollectionId = null;
 
 if (!currentCollection) {
     alert("Collection not found!");
@@ -26,7 +25,7 @@ const i18nCol = {
         confirm_new_password: "Confirm New Password", cancel: "Cancel", save_changes: "Save Changes",
         upload_device: "Upload from Devices", pass_criteria: "Password requires min 9 chars, 1 uppercase, 1 lowercase, 1 number.",
         item_info: "Paste a link to auto-generate, or fill manually.",
-        empty_item: "Add Item", add_collection: "+ Add Collection", collection_name: "Collection Name", save_collection: "Save Collection"
+        empty_item: "Add Item"
     },
     id: {
         my_collections: "Koleksi Saya", my_account: "Akun Saya", sign_out: "Keluar", back: "&larr; Kembali",
@@ -37,7 +36,7 @@ const i18nCol = {
         confirm_new_password: "Konfirmasi Kata Sandi Baru", cancel: "Batal", save_changes: "Simpan Perubahan",
         upload_device: "Unggah dari Perangkat", pass_criteria: "Minimal 9 karakter, 1 huruf besar, 1 huruf kecil, 1 angka.",
         item_info: "Masukkan tautan untuk otomatisasi, atau isi manual.",
-        empty_item: "Tambah Item", add_collection: "+ Tambah Koleksi", collection_name: "Nama Koleksi", save_collection: "Simpan Koleksi"
+        empty_item: "Tambah Item"
     }
 };
 
@@ -66,7 +65,9 @@ function saveData() {
     renderCollection();
 }
 
+function toggleProfileMenu() { UI.toggleProfileMenu(); }
 function toggleSidebar() { UI.toggleSidebar(); }
+function closeModal(id) { UI.closeModal(id); }
 
 function toggleColDropdown(colId) {
     const ul = document.getElementById(`item-list-${colId}`);
@@ -87,8 +88,6 @@ function renderSidebarNav() {
             <span class="show-on-collapse" style="display:none;" onclick="window.location.href='collection.html?id=${col.id}'" title="${(col.name || '').replace(/"/g, '&quot;')}">${col.name.charAt(0)}</span>
             <div class="action-icons hide-on-collapse">
                 <button class="icon-btn" onclick="toggleColDropdown('${col.id}')" title="Expand">${ICON_CHEVRON}</button>
-                <button class="icon-btn" onclick="openCollectionModal('${col.id}')" title="Edit">${ICON_EDIT}</button>
-                <button class="icon-btn delete" onclick="deleteCollectionSidebar('${col.id}')" title="Delete">${ICON_DELETE}</button>
             </div>
         `;
         li.appendChild(header);
@@ -107,50 +106,6 @@ function renderSidebarNav() {
         }
         listContainer.appendChild(li);
     });
-}
-
-// Logika Modal Sidebar Collection
-function openCollectionModal(id = null) {
-    editingCollectionId = id;
-    UI.openModal('collectionModal');
-    const lang = Storage.getLang();
-    
-    if (id) {
-        const col = collections.find(c => c.id === id);
-        document.getElementById('collectionName').value = col.name;
-        document.getElementById('collectionModalTitle').innerText = 'Edit Collection';
-    } else {
-        document.getElementById('collectionName').value = '';
-        document.getElementById('collectionModalTitle').innerText = i18nCol[lang].add_collection;
-    }
-}
-
-function saveCollection() {
-    const name = document.getElementById('collectionName').value.trim();
-    if(!name) return;
-    
-    if (editingCollectionId) {
-        const col = collections.find(c => c.id === editingCollectionId);
-        col.name = name;
-        if (editingCollectionId === collectionId) {
-            document.getElementById('current-collection-title').innerText = name;
-            currentCollection.name = name;
-        }
-    } else {
-        collections.push({ id: 'col_' + Date.now(), name: name, items: [] });
-    }
-    saveData();
-    UI.closeModal('collectionModal');
-}
-
-function deleteCollectionSidebar(id) {
-    if (confirm("Delete this Collection permanently?")) {
-        collections = collections.filter(c => c.id !== id);
-        saveData();
-        if (id === collectionId) {
-            window.location.href = 'dashboard.html';
-        }
-    }
 }
 
 // --- LOGIKA FORM ITEM (CRUD & SYNC LINK ASYNC) ---
@@ -239,7 +194,10 @@ urlInput.addEventListener('change', async (e) => {
     if (newUrl && newUrl !== itemState.currentUrl && newUrl.startsWith('http')) {
         
         const originalNamePh = nameInput.placeholder;
-        nameInput.placeholder = "Mengambil data otomatis...";
+        const currentLang = Storage.getLang();
+        
+        // Terjemahan indikator auto-fetching yang dinamis
+        nameInput.placeholder = currentLang === 'id' ? "Mengambil data otomatis..." : "Fetching data automatically...";
         
         const data = await Storage.fetchScrapeData(newUrl);
 
@@ -272,7 +230,7 @@ function saveItem() {
     const price = priceInput.value;
     if(!name || !price) { alert("Nama dan Harga wajib diisi!"); return; }
     
-    // PENGATURAN GAMBAR: Deteksi Gambar Kosong -> Atur Generik Fallback (Shopping Bag)
+    // PENGATURAN GAMBAR: Deteksi Gambar Kosong -> Atur Generik Fallback secara aman
     let finalImageUrl = itemState.customImageData || imageInput.value.trim();
     if (!finalImageUrl || finalImageUrl === "") {
         finalImageUrl = Storage.FALLBACK_IMAGE;
@@ -293,7 +251,7 @@ function saveItem() {
     UI.closeModal('itemModal');
 }
 
-// Render UI Item Koleksi (Aksi Edit/Delete di Posisi Paling Bawah)
+// Render UI Item Koleksi & Fix Kebocoran String Sintaks
 function renderCollection() {
     const content = document.getElementById('board-content');
     const lang = Storage.getLang();
@@ -316,9 +274,9 @@ function renderCollection() {
             safeImageUrl = Storage.FALLBACK_IMAGE;
         }
 
+        // Sanitasi Ekstrim untuk atribut alt
         const safeName = item.name ? item.name.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : 'Product';
 
-        // Modifikasi HTML agar Card Actions (Edit/Delete) berada di posisi paling bawah
         html += `
             <div class="item-card">
                 <img class="item-img" src="${safeImageUrl}" alt="${safeName}">

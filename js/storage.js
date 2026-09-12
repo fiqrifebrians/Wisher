@@ -21,6 +21,8 @@ const Storage = {
 
     // Fungsi Pengambil Data Nyata via Link (Real Web Scraping via Open Graph Proxy)
     fetchScrapeData: async (url) => {
+        const currentLang = Storage.getLang();
+
         try {
             // Menggunakan Proxy allorigins untuk membypass blokir CORS dari browser
             const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
@@ -77,8 +79,13 @@ const Storage = {
                 }
             }
 
+            // Fallback Nama Cerdas dengan dukungan Multi-Bahasa
+            let hostname = "";
+            try { hostname = new URL(url).hostname; } catch(e){}
+            let fallbackName = currentLang === 'id' ? `Produk dari ${hostname}` : `Product from ${hostname}`;
+
             return {
-                scrapedName: title ? title.trim() : `Produk dari ${new URL(url).hostname}`,
+                scrapedName: title ? title.trim() : fallbackName,
                 scrapedImage: image || "", // Kosongkan jika gagal agar fallback Shopping Bag terpakai
                 scrapedPrice: price || 0,
                 scrapedCurrency: currency
@@ -86,11 +93,14 @@ const Storage = {
 
         } catch (error) {
             console.error('Error fetching URL:', error);
-            // Fallback object murni jika gagal proxy (misalnya web diproteksi super ketat)
-            let domain = "Situs Eksternal";
+            // Fallback object murni jika gagal proxy (Dukungan Multi-Bahasa)
+            let domain = currentLang === 'id' ? "Situs Eksternal" : "External Site";
             try { domain = new URL(url).hostname.replace('www.', ''); } catch(e){}
+            
+            let fallbackErrorName = currentLang === 'id' ? `Produk Pilihan ${domain}` : `Selected Product ${domain}`;
+
             return {
-                scrapedName: `Produk Pilihan ${domain}`,
+                scrapedName: fallbackErrorName,
                 scrapedImage: "",
                 scrapedPrice: 0,
                 scrapedCurrency: 'IDR'
