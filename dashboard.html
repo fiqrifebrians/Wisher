@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wisher - Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-body">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="brand">
+            <h2 class="brand-text">Wisher<span class="dot">.</span></h2>
+        </div>
+        <button class="primary-btn new-list-btn">+ New Wish-List</button>
+        <div class="menu">
+            <p class="menu-label">MY WISH-LISTS</p>
+            <ul id="wishlist-menu">
+                <li class="active">Gadget Impian</li>
+                <li>Peralatan Rumah</li>
+                <li>Rencana Liburan</li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-nav">
+            <h1 id="current-list-title">Gadget Impian</h1>
+            <div class="user-profile">
+                <img src="https://ui-avatars.com/api/?name=User&background=ff3b30&color=fff" alt="Profile">
+            </div>
+        </header>
+
+        <div class="board-actions">
+            <button class="secondary-btn" onclick="openModal()">+ Add New Item</button>
+            <button class="secondary-btn">+ Add Category</button>
+        </div>
+
+        <!-- Categories and Items Render Area -->
+        <div id="board-content" class="board-content">
+            <!-- Mockup Category -->
+            <div class="category-section">
+                <h3 class="category-title">Work Setup <span>(Category)</span></h3>
+                <div class="items-grid">
+                    <!-- Item Card -->
+                    <div class="item-card">
+                        <div class="item-img" style="background-image: url('https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=400');"></div>
+                        <div class="item-details">
+                            <h4>Monitor 4K</h4>
+                            <p class="item-price">IDR 4.500.000</p>
+                            <a href="#" class="item-link" target="_blank">Lihat Produk &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Form (Sesuai Logika Input Spesifikasi 4) -->
+    <div id="itemModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Tambah / Edit Item</h3>
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p class="info-text">Masukkan link untuk auto-generate, atau isi secara manual.</p>
+                
+                <div class="input-group">
+                    <label>Link Online (URL)</label>
+                    <input type="url" id="itemUrl" placeholder="https://toko-online.com/produk...">
+                </div>
+
+                <div class="input-group">
+                    <label>Nama Item</label>
+                    <input type="text" id="itemName" placeholder="Masukkan nama item">
+                </div>
+
+                <div class="input-group">
+                    <label>URL Gambar (Bisa dikustomisasi)</label>
+                    <input type="url" id="itemImage" placeholder="https://link-gambar.com/foto.jpg">
+                </div>
+                <img id="imagePreview" class="image-preview" src="" alt="Preview" style="display:none;">
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Mata Uang</label>
+                        <select id="itemCurrency">
+                            <option value="IDR">IDR</option>
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="flex: 2;">
+                        <label>Harga</label>
+                        <input type="number" id="itemPrice" placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Kategori</label>
+                    <select id="itemCategory">
+                        <option value="uncategorized">Tanpa Kategori</option>
+                        <option value="cat1">Work Setup</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="primary-btn" onclick="saveItem()">Simpan Item</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
