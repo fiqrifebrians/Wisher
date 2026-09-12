@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,13 +14,11 @@
         <div class="brand">
             <h2 class="brand-text">Wisher<span class="dot">.</span></h2>
         </div>
-        <button class="primary-btn new-list-btn">+ New Wish-List</button>
+        <button class="primary-btn new-list-btn" onclick="createNewWishlist()">+ New Wishlist</button>
         <div class="menu">
-            <p class="menu-label">MY WISH-LISTS</p>
+            <p class="menu-label">MY WISHLISTS</p>
             <ul id="wishlist-menu">
-                <li class="active">Gadget Impian</li>
-                <li>Peralatan Rumah</li>
-                <li>Rencana Liburan</li>
+                <!-- Dynamically populated via JS -->
             </ul>
         </div>
     </aside>
@@ -28,66 +26,59 @@
     <!-- Main Content -->
     <main class="main-content">
         <header class="top-nav">
-            <h1 id="current-list-title">Gadget Impian</h1>
-            <div class="user-profile">
-                <img src="https://ui-avatars.com/api/?name=User&background=ff3b30&color=fff" alt="Profile">
+            <h1 id="current-list-title">My Wishlist</h1>
+            <div class="nav-actions">
+                <select class="lang-select">
+                    <option value="en">🇬🇧 EN</option>
+                    <option value="id">🇮🇩 ID</option>
+                </select>
+                <div class="user-profile" onclick="logout()">
+                    <img src="https://ui-avatars.com/api/?name=User&background=ff3b30&color=fff" alt="Profile" title="Click to Logout">
+                </div>
             </div>
         </header>
 
-        <div class="board-actions">
-            <button class="secondary-btn" onclick="openModal()">+ Add New Item</button>
-            <button class="secondary-btn">+ Add Category</button>
+        <div id="board-actions-container" class="board-actions" style="display:none;">
+            <!-- SWAPPED POSITION: Add Category on the left, Add Item on the right -->
+            <button class="secondary-btn" onclick="addCategory()">+ Add Category</button>
+            <button class="secondary-btn" onclick="openModal()">+ Add Item</button>
         </div>
 
         <!-- Categories and Items Render Area -->
         <div id="board-content" class="board-content">
-            <!-- Mockup Category -->
-            <div class="category-section">
-                <h3 class="category-title">Work Setup <span>(Category)</span></h3>
-                <div class="items-grid">
-                    <!-- Item Card -->
-                    <div class="item-card">
-                        <div class="item-img" style="background-image: url('https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=400');"></div>
-                        <div class="item-details">
-                            <h4>Monitor 4K</h4>
-                            <p class="item-price">IDR 4.500.000</p>
-                            <a href="#" class="item-link" target="_blank">Lihat Produk &rarr;</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Empty state or dynamically populated via JS -->
         </div>
     </main>
 
-    <!-- Modal Form (Sesuai Logika Input Spesifikasi 4) -->
+    <!-- Modal Form (Input Item Logic) -->
     <div id="itemModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Tambah / Edit Item</h3>
+                <h3>Add / Edit Item</h3>
                 <span class="close-btn" onclick="closeModal()">&times;</span>
             </div>
             <div class="modal-body">
-                <p class="info-text">Masukkan link untuk auto-generate, atau isi secara manual.</p>
+                <p class="info-text">Paste a link to auto-generate, or fill manually.</p>
                 
                 <div class="input-group">
-                    <label>Link Online (URL)</label>
-                    <input type="url" id="itemUrl" placeholder="https://toko-online.com/produk...">
+                    <label>Online Link (URL)</label>
+                    <input type="url" id="itemUrl" placeholder="https://store.com/product...">
                 </div>
 
                 <div class="input-group">
-                    <label>Nama Item</label>
-                    <input type="text" id="itemName" placeholder="Masukkan nama item">
+                    <label>Item Name</label>
+                    <input type="text" id="itemName" placeholder="Enter item name">
                 </div>
 
                 <div class="input-group">
-                    <label>URL Gambar (Bisa dikustomisasi)</label>
-                    <input type="url" id="itemImage" placeholder="https://link-gambar.com/foto.jpg">
+                    <label>Image URL (Customizable)</label>
+                    <input type="url" id="itemImage" placeholder="https://image-link.com/photo.jpg">
                 </div>
                 <img id="imagePreview" class="image-preview" src="" alt="Preview" style="display:none;">
 
                 <div class="input-row">
                     <div class="input-group">
-                        <label>Mata Uang</label>
+                        <label>Currency</label>
                         <select id="itemCurrency">
                             <option value="IDR">IDR</option>
                             <option value="USD">USD</option>
@@ -95,21 +86,21 @@
                         </select>
                     </div>
                     <div class="input-group" style="flex: 2;">
-                        <label>Harga</label>
+                        <label>Price</label>
                         <input type="number" id="itemPrice" placeholder="0">
                     </div>
                 </div>
                 
                 <div class="input-group">
-                    <label>Kategori</label>
+                    <label>Category</label>
                     <select id="itemCategory">
-                        <option value="uncategorized">Tanpa Kategori</option>
-                        <option value="cat1">Work Setup</option>
+                        <option value="uncategorized">Uncategorized</option>
+                        <!-- Dynamic Categories here -->
                     </select>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="primary-btn" onclick="saveItem()">Simpan Item</button>
+                <button class="primary-btn" onclick="saveItem()">Save Item</button>
             </div>
         </div>
     </div>

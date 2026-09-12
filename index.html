@@ -1,68 +1,58 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wisher - Sign In</title>
+    <title>Wisher - Your Personal Wishlist</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="auth-body">
-    <div class="auth-container">
-        <!-- Login Form -->
-        <div id="login-form" class="auth-form active">
-            <h2>Welcome to Wisher</h2>
-            <p class="subtitle">Kelola wish-list Anda dengan mudah.</p>
-            
-            <button class="google-btn">
-                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google">
-                Log In with Google
-            </button>
-            
-            <div class="divider"><span>OR</span></div>
-            
-            <div class="input-group">
-                <label>Email</label>
-                <input type="email" placeholder="Masukkan email Anda">
-            </div>
-            <div class="input-group">
-                <label>Password</label>
-                <input type="password" placeholder="Masukkan password">
-            </div>
-            <button class="primary-btn" onclick="window.location.href='dashboard.html'">Log In</button>
-            
-            <p class="toggle-text">Belum punya akun? <span onclick="toggleAuth()">Sign Up di sini</span></p>
+<body class="landing-body">
+    <nav class="navbar">
+        <div class="brand">
+            <h2 class="brand-text">Wisher<span class="dot">.</span></h2>
         </div>
+        <div class="nav-actions">
+            <select class="lang-select">
+                <option value="en">🇬🇧 EN</option>
+                <option value="id">🇮🇩 ID</option>
+            </select>
+            <a href="auth.html" class="secondary-btn login-nav-btn">Login</a>
+        </div>
+    </nav>
 
-        <!-- Signup Form -->
-        <div id="signup-form" class="auth-form">
-            <h2>Bergabung dengan Wisher</h2>
-            <p class="subtitle">Buat wish-list impian Anda hari ini.</p>
-            
-            <button class="google-btn">
-                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google">
-                Sign Up with Google
-            </button>
-            
-            <div class="divider"><span>OR</span></div>
-            
-            <div class="input-group">
-                <label>Nama Lengkap</label>
-                <input type="text" placeholder="Masukkan nama Anda">
-            </div>
-            <div class="input-group">
-                <label>Email</label>
-                <input type="email" placeholder="Masukkan email Anda">
-            </div>
-            <div class="input-group">
-                <label>Password</label>
-                <input type="password" placeholder="Buat password">
-            </div>
-            <button class="primary-btn" onclick="window.location.href='dashboard.html'">Sign Up</button>
-            
-            <p class="toggle-text">Sudah punya akun? <span onclick="toggleAuth()">Log In di sini</span></p>
+    <header class="hero">
+        <div class="hero-content">
+            <h1>Your Personal Wishlist, <br><span class="highlight">Simplified.</span></h1>
+            <p>Curate, organize, and track everything you want in one beautiful, minimalist space.</p>
+            <button class="primary-btn cta-btn" onclick="handleCta()">Add Wishlist</button>
         </div>
-    </div>
-    <script src="js/auth.js"></script>
+        <div class="hero-visual">
+            <div class="mockup-card">
+                <div class="mockup-img"></div>
+                <div class="mockup-text">
+                    <div class="line short"></div>
+                    <div class="line long"></div>
+                </div>
+            </div>
+            <div class="mockup-card float">
+                <div class="mockup-img alt"></div>
+                <div class="mockup-text">
+                    <div class="line short"></div>
+                    <div class="line long"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <script>
+        function handleCta() {
+            if (localStorage.getItem('isLoggedIn') === 'true') {
+                window.location.href = 'dashboard.html';
+            } else {
+                window.location.href = 'auth.html';
+            }
+        }
+    </script>
 </body>
 </html>
