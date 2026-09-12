@@ -9,8 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-body">
-    
-    <!-- Sidebar Sinkronisasi Penuh di Halaman Collection -->
+    <!-- Overlay Transparan untuk Tap-Out Sidebar Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="UI.toggleMobileSidebar()"></div>
+
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-toggle-btn" onclick="toggleSidebar()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
@@ -19,11 +20,9 @@
             <h2 class="brand-text hide-on-collapse">Wisher<span class="dot highlight-dot">.</span></h2>
             <h2 class="brand-icon show-on-collapse" style="display:none; color:#000000;">W<span class="dot" style="color:#ff3b3f !important;">.</span></h2>
         </div>
-        
         <div class="sidebar-actions hide-on-collapse">
             <button class="primary-btn" onclick="openCollectionModal()" data-i18n="add_collection">+ Add Collection</button>
         </div>
-
         <div class="menu flex-grow hide-on-collapse">
             <p class="menu-label" data-i18n="my_collections">My Collections</p>
             <ul id="sidebar-collections">
@@ -46,11 +45,17 @@
     <main class="main-content">
         <header class="top-nav">
             <div style="display:flex; justify-content:space-between; align-items:center; width: 100%;">
-                <h1 id="current-collection-title">Loading Collection...</h1>
+                <div style="display:flex; align-items:center; gap: 16px;">
+                    <!-- Hamburger Menu untuk Mobile Layout -->
+                    <button class="mobile-hamburger" onclick="UI.toggleMobileSidebar()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
+                    <h1 id="current-collection-title">Loading Collection...</h1>
+                </div>
                 
                 <div style="display:flex; align-items:center; gap: 16px;">
-                    <div class="custom-select-wrapper dark-arrow-wrapper">
-                        <select class="lang-select nav-btn dark-arrow-select" onchange="changeLang(this.value)">
+                    <div class="custom-select-wrapper">
+                        <select class="lang-select nav-btn" onchange="changeLang(this.value)">
                             <option value="en">🇬🇧 EN</option>
                             <option value="id">🇮🇩 ID</option>
                         </select>
@@ -69,7 +74,7 @@
         </div>
     </main>
 
-    <!-- Modal Form (Collection) ditambahkan di sini agar sidebar bisa membuat Koleksi juga -->
+    <!-- Modal Form (Collection) - Untuk Interaksi Tambah Dari Sidebar -->
     <div id="collectionModal" class="modal-overlay">
         <div class="modal-content" style="max-width: 400px;">
             <div class="modal-header">

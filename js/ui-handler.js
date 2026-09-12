@@ -1,5 +1,4 @@
 const UI = {
-    // Penanganan Terjemahan Multi-Bahasa
     changeLang: (lang, dictionary) => {
         Storage.setLang(lang);
         document.querySelectorAll('.lang-select').forEach(el => el.value = lang);
@@ -13,13 +12,19 @@ const UI = {
         });
     },
 
-    // Penanganan Modal & Sidebar
     openModal: (id) => document.getElementById(id).classList.add('active'),
     closeModal: (id) => document.getElementById(id).classList.remove('active'),
     toggleSidebar: () => document.getElementById('sidebar').classList.toggle('collapsed'),
     toggleProfileMenu: () => document.getElementById('profileDropdown').classList.toggle('show'),
     
-    // Toggle Visibilitas Password
+    // Toggle Mobile Sidebar Logic
+    toggleMobileSidebar: () => {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        if (sidebar) sidebar.classList.toggle('mobile-open');
+        if (overlay) overlay.classList.toggle('active');
+    },
+
     togglePasswordVisibility: (inputId) => {
         const input = document.getElementById(inputId);
         const slash = input.parentElement.querySelector('.slash');
@@ -27,7 +32,6 @@ const UI = {
         else { input.type = "password"; slash.style.display = "none"; }
     },
 
-    // Preview File Input (Image)
     previewImage: (event, previewId, callback) => {
         const file = event.target.files[0];
         if (file) {
@@ -41,7 +45,6 @@ const UI = {
         }
     },
 
-    // Rendering Profil Akun
     loadProfileData: () => {
         const users = Storage.getUsers();
         const user = users.find(u => u.username === Storage.getCurrentUser());
@@ -54,7 +57,6 @@ const UI = {
     }
 };
 
-// Global Event Listener untuk menutup dropdown profil
 window.onclick = function(event) {
     if (!event.target.closest('.sidebar-profile')) {
         const dropdown = document.getElementById('profileDropdown');

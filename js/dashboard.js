@@ -26,8 +26,8 @@ const i18nDash = {
     }
 };
 
-const ICON_EDIT = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
-const ICON_DELETE = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+const ICON_EDIT = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
+const ICON_DELETE = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
 const ICON_CHEVRON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
 
 window.onload = () => {
@@ -117,7 +117,6 @@ function renderSidebar() {
             col.items.forEach(item => {
                 const itemLi = document.createElement('li');
                 itemLi.className = `wl-item`;
-                // Menghilangkan tanda "-" di text
                 itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">${item.name}</span>`;
                 ul.appendChild(itemLi);
             });
@@ -143,7 +142,6 @@ function renderMainContent() {
         
         let collageHtml = `<div class="collection-card-collage collage-${Math.min(itemCount, 4)}">`;
         if (itemCount === 0) {
-            // Bersih tanpa atribut tag yang bocor
             collageHtml += `<img src="${Storage.FALLBACK_IMAGE}" class="collage-img" alt="Empty" style="padding: 24px; object-fit: contain;">`;
         } else {
             const displayItems = col.items.slice(0, 4);
@@ -158,6 +156,7 @@ function renderMainContent() {
         }
         collageHtml += `</div>`;
 
+        // Modifikasi HTML agar Card Actions (Edit/Delete) berada di posisi paling bawah
         html += `
             <div class="collection-card" draggable="true" 
                 ondragstart="handleDragStartCol(event, '${col.id}')"
@@ -166,11 +165,15 @@ function renderMainContent() {
                 ondrop="handleDropCol(event, '${col.id}')"
                 ondragend="handleDragEndCol(event)"
                 onclick="window.location.href='collection.html?id=${col.id}'">
-                <button class="edit-icon-card" onclick="editCollection(event, '${col.id}')">${ICON_EDIT}</button>
-                <button class="delete-icon-card" onclick="deleteCollectionMain(event, '${col.id}')">${ICON_DELETE}</button>
                 ${collageHtml}
-                <h3>${col.name}</h3>
-                <p>${itemCount} Items</p>
+                <div style="flex-grow: 1;">
+                    <h3>${col.name}</h3>
+                    <p>${itemCount} Items</p>
+                </div>
+                <div class="card-actions" onclick="event.stopPropagation()">
+                    <button class="card-action-btn" onclick="editCollection(event, '${col.id}')" title="Edit">${ICON_EDIT}</button>
+                    <button class="card-action-btn delete-btn" onclick="deleteCollectionMain(event, '${col.id}')" title="Delete">${ICON_DELETE}</button>
+                </div>
             </div>
         `;
     });

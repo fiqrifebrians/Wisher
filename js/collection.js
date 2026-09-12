@@ -41,8 +41,8 @@ const i18nCol = {
     }
 };
 
-const ICON_EDIT = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
-const ICON_DELETE = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+const ICON_EDIT = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
+const ICON_DELETE = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
 const ICON_CHEVRON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
 
 window.onload = () => {
@@ -66,7 +66,6 @@ function saveData() {
     renderCollection();
 }
 
-function toggleProfileMenu() { UI.toggleProfileMenu(); }
 function toggleSidebar() { UI.toggleSidebar(); }
 
 function toggleColDropdown(colId) {
@@ -89,7 +88,7 @@ function renderSidebarNav() {
             <div class="action-icons hide-on-collapse">
                 <button class="icon-btn" onclick="toggleColDropdown('${col.id}')" title="Expand">${ICON_CHEVRON}</button>
                 <button class="icon-btn" onclick="openCollectionModal('${col.id}')" title="Edit">${ICON_EDIT}</button>
-                <button class="icon-btn delete" onclick="deleteCollection('${col.id}')" title="Delete">${ICON_DELETE}</button>
+                <button class="icon-btn delete" onclick="deleteCollectionSidebar('${col.id}')" title="Delete">${ICON_DELETE}</button>
             </div>
         `;
         li.appendChild(header);
@@ -108,17 +107,6 @@ function renderSidebarNav() {
         }
         listContainer.appendChild(li);
     });
-}
-
-// Logika Hapus Sidebar
-function deleteCollection(id) {
-    if (confirm("Delete this Collection permanently?")) {
-        collections = collections.filter(c => c.id !== id);
-        saveData();
-        if (id === collectionId) {
-            window.location.href = 'dashboard.html';
-        }
-    }
 }
 
 // Logika Modal Sidebar Collection
@@ -153,6 +141,16 @@ function saveCollection() {
     }
     saveData();
     UI.closeModal('collectionModal');
+}
+
+function deleteCollectionSidebar(id) {
+    if (confirm("Delete this Collection permanently?")) {
+        collections = collections.filter(c => c.id !== id);
+        saveData();
+        if (id === collectionId) {
+            window.location.href = 'dashboard.html';
+        }
+    }
 }
 
 // --- LOGIKA FORM ITEM (CRUD & SYNC LINK ASYNC) ---
@@ -274,7 +272,7 @@ function saveItem() {
     const price = priceInput.value;
     if(!name || !price) { alert("Nama dan Harga wajib diisi!"); return; }
     
-    // PENGATURAN GAMBAR: Deteksi Gambar Kosong -> Atur Generik Fallback (Shopping Bag) secara aman
+    // PENGATURAN GAMBAR: Deteksi Gambar Kosong -> Atur Generik Fallback (Shopping Bag)
     let finalImageUrl = itemState.customImageData || imageInput.value.trim();
     if (!finalImageUrl || finalImageUrl === "") {
         finalImageUrl = Storage.FALLBACK_IMAGE;
@@ -295,7 +293,7 @@ function saveItem() {
     UI.closeModal('itemModal');
 }
 
-// Render UI Item Koleksi & Fix Kebocoran String Sintaks
+// Render UI Item Koleksi (Aksi Edit/Delete di Posisi Paling Bawah)
 function renderCollection() {
     const content = document.getElementById('board-content');
     const lang = Storage.getLang();
@@ -318,18 +316,22 @@ function renderCollection() {
             safeImageUrl = Storage.FALLBACK_IMAGE;
         }
 
-        // Sanitasi Ekstrim untuk atribut alt (menghindari sintaks bocor ke layar)
         const safeName = item.name ? item.name.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : 'Product';
 
+        // Modifikasi HTML agar Card Actions (Edit/Delete) berada di posisi paling bawah
         html += `
             <div class="item-card">
-                <button class="edit-icon-card" onclick="editItem(event, '${item.id}')">${ICON_EDIT}</button>
-                <button class="delete-icon-card" onclick="deleteItem(event, '${item.id}')">${ICON_DELETE}</button>
                 <img class="item-img" src="${safeImageUrl}" alt="${safeName}">
                 <div class="item-details">
-                    <h4>${item.name}</h4>
-                    <p class="item-price">${currencySymbol} ${item.price.toLocaleString()}</p>
-                    ${item.url ? `<a href="${item.url}" class="item-link" target="_blank">Link &rarr;</a>` : ''}
+                    <div style="flex-grow: 1;">
+                        <h4>${item.name}</h4>
+                        <p class="item-price">${currencySymbol} ${item.price.toLocaleString()}</p>
+                        ${item.url ? `<a href="${item.url}" class="item-link" target="_blank">Link &rarr;</a>` : ''}
+                    </div>
+                    <div class="card-actions">
+                        <button class="card-action-btn" onclick="editItem(event, '${item.id}')" title="Edit">${ICON_EDIT}</button>
+                        <button class="card-action-btn delete-btn" onclick="deleteItem(event, '${item.id}')" title="Delete">${ICON_DELETE}</button>
+                    </div>
                 </div>
             </div>
         `;
