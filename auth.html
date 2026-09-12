@@ -4,13 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wisher - Authentication</title>
+    <!-- Favicon Configuration -->
+    <link rel="icon" href="assets/wisher-logo.png">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="auth-body">
     <div class="lang-switcher-auth">
         <div class="custom-select-wrapper compact">
-            <select class="lang-select compact" onchange="changeLang(this.value)">
+            <select class="lang-select compact" onchange="changeLang(this.value)" style="border-color: var(--text-gray); color: var(--text-dark);">
                 <option value="en">🇬🇧 EN</option>
                 <option value="id">🇮🇩 ID</option>
             </select>
@@ -23,7 +25,6 @@
             <div class="auth-header">
                 <h2 data-i18n="welcome_back">Welcome Back</h2>
             </div>
-            
             <div class="input-group">
                 <label data-i18n="username">Username</label>
                 <input type="text" id="login-username" placeholder="Enter username" data-i18n-ph="username">
@@ -32,14 +33,13 @@
                 <label data-i18n="password">Password</label>
                 <div class="password-wrapper">
                     <input type="password" id="login-password" placeholder="Enter password" oninput="validateLoginPassword()" data-i18n-ph="password">
-                    <span class="toggle-password" onclick="togglePasswordVisibility('login-password')">
+                    <span class="toggle-password" onclick="UI.togglePasswordVisibility('login-password')">
                         <svg class="eye-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle><line class="slash" x1="3" y1="3" x2="21" y2="21" style="display:none;"></line></svg>
                     </span>
                 </div>
                 <p id="login-error" class="error-text" data-i18n="pass_criteria">Password requires min 9 chars, 1 uppercase, 1 lowercase, 1 number.</p>
             </div>
             <button class="primary-btn" onclick="doLogin()" data-i18n="login_btn">Log In</button>
-            
             <p class="toggle-text"><span data-i18n="no_account">Don't have an account?</span> <span class="action-link" onclick="toggleAuth()" data-i18n="sign_up_here">Sign Up here</span></p>
         </div>
 
@@ -48,7 +48,6 @@
             <div class="auth-header">
                 <h2 data-i18n="join_wisher">Join Wisher</h2>
             </div>
-            
             <div class="input-group">
                 <label data-i18n="username">Username</label>
                 <input type="text" id="signup-username" placeholder="Create username" data-i18n-ph="username">
@@ -61,7 +60,7 @@
                 <label data-i18n="password">Password</label>
                 <div class="password-wrapper">
                     <input type="password" id="signup-password" placeholder="Create password" oninput="validateSignupPassword()" data-i18n-ph="password">
-                    <span class="toggle-password" onclick="togglePasswordVisibility('signup-password')">
+                    <span class="toggle-password" onclick="UI.togglePasswordVisibility('signup-password')">
                         <svg class="eye-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle><line class="slash" x1="3" y1="3" x2="21" y2="21" style="display:none;"></line></svg>
                     </span>
                 </div>
@@ -71,16 +70,18 @@
                 <label data-i18n="confirm_password">Confirm Password</label>
                 <div class="password-wrapper">
                     <input type="password" id="signup-confirm-password" placeholder="Confirm password" data-i18n-ph="confirm_password">
-                    <span class="toggle-password" onclick="togglePasswordVisibility('signup-confirm-password')">
+                    <span class="toggle-password" onclick="UI.togglePasswordVisibility('signup-confirm-password')">
                         <svg class="eye-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle><line class="slash" x1="3" y1="3" x2="21" y2="21" style="display:none;"></line></svg>
                     </span>
                 </div>
             </div>
             <button class="primary-btn" onclick="doSignup()" data-i18n="signup_btn">Sign Up</button>
-            
             <p class="toggle-text"><span data-i18n="has_account">Already have an account?</span> <span class="action-link" onclick="toggleAuth()" data-i18n="log_in_here">Log In here</span></p>
         </div>
     </div>
+    
+    <script src="js/storage.js"></script>
+    <script src="js/ui-handler.js"></script>
     <script src="js/auth.js"></script>
 </body>
 </html>

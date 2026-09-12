@@ -4,24 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wisher - Your Personal Wishlist</title>
+    <!-- Favicon Configuration -->
+    <link rel="icon" href="assets/wisher-logo.png">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="landing-body">
-    <!-- Penambahan class gradient-nav untuk estetika Silver-Orange-Silver -->
-    <nav class="navbar main-navbar gradient-nav">
+    <nav class="navbar main-navbar">
         <div class="brand">
             <h2 class="brand-text">Wisher<span class="dot highlight-dot">.</span></h2>
         </div>
         <div class="nav-actions">
-            <!-- Penyelarasan ukuran compact tombol bahasa -->
             <div class="custom-select-wrapper compact">
                 <select class="lang-select compact" onchange="changeLang(this.value)">
                     <option value="en">🇬🇧 EN</option>
                     <option value="id">🇮🇩 ID</option>
                 </select>
             </div>
-            <a href="auth.html" class="primary-btn login-nav-btn compact-btn" data-i18n="login">Log In</a>
+            <a href="auth.html" class="compact-btn" data-i18n="login">Log In</a>
         </div>
     </nav>
 
@@ -48,6 +48,8 @@
         </div>
     </header>
 
+    <script src="js/storage.js"></script>
+    <script src="js/ui-handler.js"></script>
     <script>
         const i18nLanding = {
             en: {
@@ -63,23 +65,15 @@
         };
 
         function changeLang(lang) {
-            localStorage.setItem('wisher_lang', lang);
-            document.querySelector('.lang-select').value = lang;
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (i18nLanding[lang] && i18nLanding[lang][key]) {
-                    el.innerHTML = i18nLanding[lang][key];
-                }
-            });
+            UI.changeLang(lang, i18nLanding);
         }
 
         window.onload = () => {
-            const savedLang = localStorage.getItem('wisher_lang') || 'en';
-            changeLang(savedLang);
+            UI.changeLang(Storage.getLang(), i18nLanding);
         };
 
         function handleCta() {
-            if (localStorage.getItem('isLoggedIn') === 'true') {
+            if (Storage.isLoggedIn()) {
                 window.location.href = 'dashboard.html';
             } else {
                 window.location.href = 'auth.html';

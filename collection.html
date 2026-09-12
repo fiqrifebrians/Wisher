@@ -4,44 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wisher - Collection View</title>
+    <!-- Favicon Configuration -->
+    <link rel="icon" href="assets/wisher-logo.png">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-body">
     
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar collapsed" id="sidebar" style="width: 72px;">
         <div class="brand">
-            <h2 class="brand-text" style="color:var(--text-dark);">Wisher<span class="dot" style="color:var(--primary-red);">.</span></h2>
+            <h2 class="brand-icon show-on-collapse" style="color:var(--primary-red);">W.</h2>
         </div>
         <div class="flex-grow"></div>
-        
-        <!-- Sidebar Profile (SINKRON DENGAN DASHBOARD) -->
         <div class="sidebar-profile">
             <div class="profile-trigger" onclick="toggleProfileMenu()">
                 <img src="https://ui-avatars.com/api/?name=User&background=ff3b30&color=fff" id="profile-avatar" alt="Profile">
-                <span id="display-username" class="profile-name">User</span>
             </div>
             <div class="profile-dropdown" id="profileDropdown">
-                <button onclick="openMyAccount()">My Account</button>
-                <button class="text-red" onclick="logout()">Sign Out</button>
+                <button onclick="openMyAccount()" data-i18n="my_account">My Account</button>
+                <button class="text-red" onclick="logout()" data-i18n="sign_out">Sign Out</button>
             </div>
         </div>
     </aside>
 
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Re-posisi Tombol Back ke Kanan -->
+        <!-- Header dengan Tombol Back di Kanan -->
         <header class="top-nav">
-            <div style="display:flex; justify-content:space-between; align-items:center; width: 100%;">
+            <div style="display:flex; align-items:center; gap: 16px;">
                 <h1 id="current-collection-title">Loading Collection...</h1>
-                <button class="secondary-btn" onclick="window.location.href='dashboard.html'" style="width: auto; padding: 10px 20px;">&larr; Back</button>
+            </div>
+            <div class="nav-actions">
+                <div class="custom-select-wrapper compact">
+                    <select class="lang-select compact" onchange="changeLang(this.value)" style="border-color: var(--text-gray); color: var(--text-dark);">
+                        <option value="en">🇬🇧 EN</option>
+                        <option value="id">🇮🇩 ID</option>
+                    </select>
+                </div>
+                <button class="secondary-btn" onclick="window.location.href='dashboard.html'" style="width: auto; padding: 10px 20px;" data-i18n="back">&larr; Back</button>
             </div>
         </header>
 
         <div class="board-actions">
-            <!-- Disederhanakan. User add item secara langsung -->
-            <button class="primary-btn" onclick="openItemModal()" style="width: auto;">+ Add Item</button>
+            <button class="primary-btn" onclick="openItemModal()" style="width: auto;" data-i18n="add_item">+ Add Item</button>
         </div>
 
         <div id="board-content" class="board-content">
@@ -49,41 +55,41 @@
         </div>
     </main>
 
-    <!-- Modal Form (Add / Edit Item) -->
+    <!-- Modal Add / Edit Item (Fleksibilitas Upload & Currency Ekspansi) -->
     <div id="itemModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="itemModalTitle">Add Item</h3>
+                <h3 id="itemModalTitle" data-i18n="add_item">Add Item</h3>
                 <span class="close-btn" onclick="closeModal('itemModal')">&times;</span>
             </div>
             <div class="modal-body">
-                <p class="info-text">Paste a link to auto-generate, or fill manually.</p>
+                <p class="info-text" data-i18n="item_info">Paste a link to auto-generate, or fill manually.</p>
                 
                 <div class="input-group">
-                    <label>Online Link (URL)</label>
+                    <label data-i18n="online_link">Online Link (URL)</label>
                     <input type="url" id="itemUrl" placeholder="https://store.com/product...">
                 </div>
 
                 <div class="input-group">
-                    <label>Item Name</label>
+                    <label data-i18n="item_name">Item Name</label>
                     <input type="text" id="itemName" placeholder="Enter item name">
                 </div>
 
-                <!-- Fleksibilitas Sumber Gambar -->
+                <!-- Input Gambar File & Link -->
                 <div class="input-group">
-                    <label>Image Source</label>
+                    <label data-i18n="image_source">Image Source</label>
                     <div style="display: flex; gap: 12px;">
                         <input type="url" id="itemImage" placeholder="Link Image URL" style="flex: 1;">
                         <input type="file" id="itemImageFile" accept="image/*" style="display:none;" onchange="previewItemImage(event)">
-                        <button class="secondary-btn" onclick="document.getElementById('itemImageFile').click()" style="flex: 0 0 auto; width: auto; font-size:12px;">From Devices</button>
+                        <button class="secondary-btn" onclick="document.getElementById('itemImageFile').click()" style="flex: 0 0 auto; width: auto; font-size:12px;" data-i18n="from_devices">From Devices</button>
                     </div>
                 </div>
                 <img id="imagePreview" class="image-preview" src="" alt="Preview" style="display:none;">
 
-                <!-- Layout Harga & Ekspansi Currency -->
+                <!-- Layout Harga & Ekspansi Currency Baru -->
                 <div class="input-row">
                     <div class="input-group" style="flex: 0 0 110px;">
-                        <label>Currency</label>
+                        <label data-i18n="currency">Currency</label>
                         <select id="itemCurrency">
                             <option value="IDR">IDR (Rp)</option>
                             <option value="USD">USD ($)</option>
@@ -95,73 +101,69 @@
                         </select>
                     </div>
                     <div class="input-group" style="flex: 1;">
-                        <label>Price</label>
+                        <label data-i18n="price">Price</label>
                         <input type="number" id="itemPrice" placeholder="0">
                     </div>
                 </div>
-                
             </div>
             <div class="modal-footer">
-                <button class="primary-btn" onclick="saveItem()">Save Item</button>
+                <button class="primary-btn" onclick="saveItem()" data-i18n="save_item">Save Item</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Form (My Account) SINKRON DARI DASHBOARD -->
+    <!-- Modal Form (My Account) -->
     <div id="accountModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>My Account</h3>
+                <h3 data-i18n="my_account">My Account</h3>
                 <span class="close-btn" onclick="closeModal('accountModal')">&times;</span>
             </div>
             <div class="modal-body">
-                
                 <div class="profile-upload-section" style="text-align:center; margin-bottom: 24px;">
                     <img id="accPreviewPic" src="https://ui-avatars.com/api/?name=User&background=ff3b30&color=fff" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin-bottom:12px; border: 2px solid var(--border-color);">
-                    <input type="file" id="accProfilePhoto" accept="image/*" style="display:none;" onchange="previewAccPhoto(event)">
+                    <input type="file" id="accProfilePhoto" accept="image/*" style="display:none;" onchange="UI.previewImage(event, 'accPreviewPic')">
                     <br>
-                    <button class="secondary-btn" onclick="document.getElementById('accProfilePhoto').click()" style="padding:8px 16px; font-size:13px; width:auto;">Upload from Devices</button>
+                    <button class="secondary-btn" onclick="document.getElementById('accProfilePhoto').click()" style="padding:8px 16px; font-size:13px; width:auto;" data-i18n="upload_device">Upload from Devices</button>
                 </div>
-
                 <div class="input-group">
-                    <label>Username</label>
+                    <label data-i18n="username">Username</label>
                     <input type="text" id="accUsername" disabled>
                 </div>
                 <div class="input-group">
-                    <label>Email</label>
+                    <label data-i18n="email">Email</label>
                     <input type="email" id="accEmail">
                 </div>
-                
                 <div class="edit-password-section">
-                    <button class="secondary-btn" id="btnEditPassword" onclick="toggleEditPassword()" style="margin-bottom:8px;">Edit Password</button>
-                    
+                    <button class="secondary-btn" id="btnEditPassword" onclick="toggleEditPassword()" style="margin-bottom:8px;" data-i18n="edit_password">Edit Password</button>
                     <div id="passwordFields" style="display:none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
                         <div class="input-group">
-                            <label>Old Password</label>
+                            <label data-i18n="old_password">Old Password</label>
                             <input type="password" id="accOldPassword">
                         </div>
                         <div class="input-group">
-                            <label>New Password</label>
+                            <label data-i18n="new_password">New Password</label>
                             <input type="password" id="accNewPassword" oninput="validateAccPassword()">
-                            <p id="acc-error" class="error-text">Password requires min 9 chars, 1 uppercase, 1 lowercase, 1 number.</p>
+                            <p id="acc-error" class="error-text" data-i18n="pass_criteria">Password requires min 9 chars, 1 uppercase, 1 lowercase, 1 number.</p>
                         </div>
                         <div class="input-group">
-                            <label>Confirm New Password</label>
+                            <label data-i18n="confirm_new_password">Confirm New Password</label>
                             <input type="password" id="accConfirmPassword">
                         </div>
-                        <!-- Tombol Cancel Edit Password -->
                         <div style="display:flex; justify-content: flex-end; margin-top: 12px;">
-                            <button class="secondary-btn" onclick="cancelEditPassword()" style="width:auto; padding:8px 16px; font-size:13px;">Cancel</button>
+                            <button class="secondary-btn" onclick="cancelEditPassword()" style="width:auto; padding:8px 16px; font-size:13px;" data-i18n="cancel">Cancel</button>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="primary-btn" onclick="saveAccount()">Save Changes</button>
+                <button class="primary-btn" onclick="saveAccount()" data-i18n="save_changes">Save Changes</button>
             </div>
         </div>
     </div>
 
+    <script src="js/storage.js"></script>
+    <script src="js/ui-handler.js"></script>
     <script src="js/collection.js"></script>
 </body>
 </html>

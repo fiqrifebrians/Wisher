@@ -1,53 +1,69 @@
-if (localStorage.getItem('isLoggedIn') !== 'true') {
-    window.location.href = 'index.html';
-}
+if (!Storage.isLoggedIn()) { window.location.href = 'index.html'; }
 
-const currentUser = localStorage.getItem('currentUser');
+const currentUser = Storage.getCurrentUser();
 const urlParams = new URLSearchParams(window.location.search);
 const collectionId = urlParams.get('id');
 
-let collections = JSON.parse(localStorage.getItem(`wisher_collections_${currentUser}`)) || [];
+let collections = Storage.getCollections();
 let currentCollection = collections.find(c => c.id === collectionId);
-let editingItemId = null; // Menyimpan ID item jika dalam mode Edit
+let editingItemId = null;
 
 if (!currentCollection) {
     alert("Collection not found!");
     window.location.href = 'dashboard.html';
 }
-if (!currentCollection.items) {
-    currentCollection.items = []; // Safety check
-}
+if (!currentCollection.items) { currentCollection.items = []; }
+
+// Kamus Koleksi
+const i18nCol = {
+    en: {
+        my_account: "My Account", sign_out: "Sign Out", back: "&larr; Back",
+        add_item: "+ Add Item", online_link: "Online Link (URL)", item_name: "Item Name",
+        image_source: "Image Source", from_devices: "From Devices", currency: "Currency",
+        price: "Price", save_item: "Save Item", username: "Username", email: "Email",
+        edit_password: "Edit Password", old_password: "Old Password", new_password: "New Password",
+        confirm_new_password: "Confirm New Password", cancel: "Cancel", save_changes: "Save Changes",
+        upload_device: "Upload from Devices", pass_criteria: "Password requires min 9 chars, 1 uppercase, 1 lowercase, 1 number.",
+        item_info: "Paste a link to auto-generate, or fill manually.",
+        empty_item: "Add Item"
+    },
+    id: {
+        my_account: "Akun Saya", sign_out: "Keluar", back: "&larr; Kembali",
+        add_item: "+ Tambah Item", online_link: "Tautan (URL)", item_name: "Nama Item",
+        image_source: "Sumber Gambar", from_devices: "Dari Perangkat", currency: "Mata Uang",
+        price: "Harga", save_item: "Simpan Item", username: "Nama Pengguna", email: "Email",
+        edit_password: "Ubah Kata Sandi", old_password: "Kata Sandi Lama", new_password: "Kata Sandi Baru",
+        confirm_new_password: "Konfirmasi Kata Sandi Baru", cancel: "Batal", save_changes: "Simpan Perubahan",
+        upload_device: "Unggah dari Perangkat", pass_criteria: "Minimal 9 karakter, 1 huruf besar, 1 huruf kecil, 1 angka.",
+        item_info: "Masukkan tautan untuk otomatisasi, atau isi manual.",
+        empty_item: "Tambah Item"
+    }
+};
+
+const ICON_EDIT = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
+const ICON_DELETE = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
 
 window.onload = () => {
     document.getElementById('display-username').innerText = currentUser;
     document.getElementById('current-collection-title').innerText = currentCollection.name;
-    loadProfileData();
+    UI.loadProfileData();
+    UI.changeLang(Storage.getLang(), i18nCol);
     renderCollection();
 };
 
-function loadProfileData() {
-    const db = JSON.parse(localStorage.getItem('wisher_users')) || [];
-    const userObj = db.find(u => u.username === currentUser);
-    if (userObj && userObj.profilePic) {
-        document.getElementById('profile-avatar').src = userObj.profilePic;
-        document.getElementById('accPreviewPic').src = userObj.profilePic;
-    }
-}
-
-function saveData() {
-    localStorage.setItem(`wisher_collections_${currentUser}`, JSON.stringify(collections));
+function changeLang(lang) {
+    UI.changeLang(lang, i18nCol);
     renderCollection();
 }
 
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-// Profile Dropdown (SINKRON DENGAN DASHBOARD)
-function toggleProfileMenu() { document.getElementById('profileDropdown').classList.toggle('show'); }
-window.onclick = function(event) {
-    if (!event.target.closest('.sidebar-profile')) {
-        document.getElementById('profileDropdown').classList.remove('show');
-    }
+function saveData() {
+    Storage.saveCollections(collections);
+    renderCollection();
 }
+
+function toggleProfileMenu() { UI.toggleProfileMenu(); }
+function toggleSidebar() { UI.toggleSidebar(); }
+function closeModal(id) { UI.closeModal(id); }
 
 // --- LOGIKA FORM ITEM (CRUD & SYNC LINK) ---
 let itemState = { isManualName: false, isManualImage: false, currentUrl: "", customImageData: null };
@@ -60,15 +76,14 @@ const currencySelect = document.getElementById('itemCurrency');
 
 function openItemModal(id = null) {
     editingItemId = id;
-    document.getElementById('itemModal').classList.add('active');
-    
+    UI.openModal('itemModal');
+    const lang = Storage.getLang();
+
     if (id) {
-        // Mode Edit
         const item = currentCollection.items.find(i => i.id === id);
         urlInput.value = item.url || '';
         nameInput.value = item.name;
         
-        // Memeriksa apakah gambar dari File Base64 atau URL
         if(item.imageUrl && item.imageUrl.startsWith('data:image')) {
             itemState.customImageData = item.imageUrl;
             imageInput.value = '';
@@ -83,17 +98,15 @@ function openItemModal(id = null) {
         document.getElementById('imagePreview').style.display = 'block';
         document.getElementById('itemModalTitle').innerText = 'Edit Item';
         
-        // Mengunci perubahan agar tidak ter-override sembarangan saat link berubah
         itemState.isManualName = true;
         itemState.isManualImage = true;
         itemState.currentUrl = item.url || "";
         
     } else {
-        // Mode Tambah Baru
         urlInput.value = ''; nameInput.value = ''; imageInput.value = ''; 
         document.getElementById('itemImageFile').value = '';
         priceInput.value = ''; document.getElementById('imagePreview').style.display = 'none';
-        document.getElementById('itemModalTitle').innerText = 'Add Item';
+        document.getElementById('itemModalTitle').innerText = i18nCol[lang].add_item;
         itemState = { isManualName: false, isManualImage: false, currentUrl: "", customImageData: null };
     }
 }
@@ -103,49 +116,37 @@ function editItem(e, id) {
     openItemModal(id);
 }
 
+function deleteItem(e, id) {
+    e.stopPropagation();
+    if (confirm("Delete this item?")) {
+        currentCollection.items = currentCollection.items.filter(i => i.id !== id);
+        saveData();
+    }
+}
+
 // Interupsi Aktivitas Manual Gambar & Nama
 nameInput.addEventListener('input', () => { itemState.isManualName = nameInput.value.trim() !== ""; });
 imageInput.addEventListener('input', () => { 
     itemState.isManualImage = imageInput.value.trim() !== "";
-    itemState.customImageData = null; // Menghapus memori file upload jika user kembali pakai URL
+    itemState.customImageData = null; 
     document.getElementById('itemImageFile').value = ''; 
     document.getElementById('imagePreview').src = imageInput.value;
     document.getElementById('imagePreview').style.display = itemState.isManualImage ? 'block' : 'none';
 });
 
-// Preview Gambar dari Upload Perangkat (File Base64)
 function previewItemImage(event) {
-    const file = event.target.files[0];
-    if(file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            itemState.isManualImage = true;
-            itemState.customImageData = e.target.result;
-            imageInput.value = ''; // Clear input url
-            document.getElementById('imagePreview').src = e.target.result;
-            document.getElementById('imagePreview').style.display = 'block';
-        }
-        reader.readAsDataURL(file);
-    }
-}
-
-// Simulasi Auto-Generate
-function simulateScrapeData(url) {
-    let domain = "Store";
-    try { domain = new URL(url).hostname.replace('www.', ''); } catch(e){}
-    return {
-        scrapedName: `Koleksi Produk ${domain}`,
-        scrapedImage: `https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80`,
-        scrapedPrice: Math.floor(Math.random() * 500) + 10, 
-        scrapedCurrency: 'USD'
-    };
+    UI.previewImage(event, 'imagePreview', (result) => {
+        itemState.isManualImage = true;
+        itemState.customImageData = result;
+        imageInput.value = ''; 
+    });
 }
 
 // EKSEKUSI KONDISIONAL SINKRONISASI MANUAL-KE-LINK
 urlInput.addEventListener('input', (e) => {
     const newUrl = e.target.value.trim();
     if (newUrl && newUrl !== itemState.currentUrl && newUrl.startsWith('http')) {
-        const data = simulateScrapeData(newUrl);
+        const data = Storage.simulateScrapeData(newUrl);
 
         if (!itemState.isManualName) { nameInput.value = data.scrapedName; }
         if (!itemState.isManualImage) {
@@ -154,7 +155,6 @@ urlInput.addEventListener('input', (e) => {
             document.getElementById('imagePreview').style.display = 'block';
         }
 
-        // Aturan Sinkronisasi: Harga selalu terupdate mengikuti Data Link
         priceInput.value = data.scrapedPrice;
         currencySelect.value = data.scrapedCurrency;
         itemState.currentUrl = newUrl;
@@ -166,24 +166,16 @@ function saveItem() {
     const price = priceInput.value;
     if(!name || !price) { alert("Nama dan Harga wajib diisi!"); return; }
     
-    // Prioritas custom file, lalu url input, lalu default fallback
     const finalImageUrl = itemState.customImageData || imageInput.value || 'https://via.placeholder.com/400';
     
     if (editingItemId) {
         const item = currentCollection.items.find(i => i.id === editingItemId);
-        item.name = name;
-        item.url = urlInput.value;
-        item.imageUrl = finalImageUrl;
-        item.price = Number(price);
-        item.currency = currencySelect.value;
+        item.name = name; item.url = urlInput.value; item.imageUrl = finalImageUrl;
+        item.price = Number(price); item.currency = currencySelect.value;
     } else {
         currentCollection.items.push({
-            id: 'itm_' + Date.now(),
-            name: name,
-            url: urlInput.value,
-            imageUrl: finalImageUrl,
-            price: Number(price),
-            currency: currencySelect.value
+            id: 'itm_' + Date.now(), name: name, url: urlInput.value,
+            imageUrl: finalImageUrl, price: Number(price), currency: currencySelect.value
         });
     }
     
@@ -194,10 +186,10 @@ function saveItem() {
 // Render Data Item pada UI Koleksi
 function renderCollection() {
     const content = document.getElementById('board-content');
+    const lang = Storage.getLang();
     
-    // VISUAL KONDISIONAL STATE KOSONG 50% OPACITY
     if (currentCollection.items.length === 0) {
-        content.innerHTML = `<div class="empty-suggestion-50" onclick="openItemModal()">Add Item</div>`;
+        content.innerHTML = `<div class="empty-suggestion-50" onclick="openItemModal()">${i18nCol[lang].empty_item}</div>`;
         return;
     }
 
@@ -211,12 +203,13 @@ function renderCollection() {
 
         html += `
             <div class="item-card">
-                <button class="edit-icon-btn" onclick="editItem(event, '${item.id}')">✏️</button>
+                <button class="edit-icon-card" onclick="editItem(event, '${item.id}')">${ICON_EDIT}</button>
+                <button class="delete-icon-card" onclick="deleteItem(event, '${item.id}')">${ICON_DELETE}</button>
                 <div class="item-img" style="background-image: url('${item.imageUrl}');"></div>
                 <div class="item-details">
                     <h4>${item.name}</h4>
                     <p class="item-price">${currencySymbol} ${item.price.toLocaleString()}</p>
-                    ${item.url ? `<a href="${item.url}" class="item-link" target="_blank">Lihat Tautan &rarr;</a>` : ''}
+                    ${item.url ? `<a href="${item.url}" class="item-link" target="_blank">Link &rarr;</a>` : ''}
                 </div>
             </div>
         `;
@@ -227,13 +220,13 @@ function renderCollection() {
 
 // --- AKUN & PROFIL LOGIC SINKRON DENGAN DASHBOARD ---
 function openMyAccount() {
-    const db = JSON.parse(localStorage.getItem('wisher_users')) || [];
+    const db = Storage.getUsers();
     const userObj = db.find(u => u.username === currentUser);
     if(userObj) {
         document.getElementById('accUsername').value = userObj.username;
         document.getElementById('accEmail').value = userObj.email;
         cancelEditPassword();
-        document.getElementById('accountModal').classList.add('active');
+        UI.openModal('accountModal');
     }
 }
 function toggleEditPassword() {
@@ -250,24 +243,11 @@ function cancelEditPassword() {
 function validateAccPassword() {
     const input = document.getElementById('accNewPassword').value;
     const errorText = document.getElementById('acc-error');
-    if (input.length > 0 && !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{9,}$/.test(input)) {
-        errorText.classList.add('active');
-    } else {
-        errorText.classList.remove('active');
-    }
-}
-function previewAccPhoto(event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('accPreviewPic').src = e.target.result;
-        }
-        reader.readAsDataURL(file);
-    }
+    if (input.length > 0 && !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{9,}$/.test(input)) { errorText.classList.add('active'); } 
+    else { errorText.classList.remove('active'); }
 }
 function saveAccount() {
-    const db = JSON.parse(localStorage.getItem('wisher_users')) || [];
+    const db = Storage.getUsers();
     const userIndex = db.findIndex(u => u.username === currentUser);
     
     if (document.getElementById('passwordFields').style.display === 'block') {
@@ -280,7 +260,6 @@ function saveAccount() {
         if (newPass !== confPass) { alert("Passwords do not match."); return; }
         db[userIndex].password = newPass;
     }
-    
     db[userIndex].email = document.getElementById('accEmail').value;
     
     const fileInput = document.getElementById('accProfilePhoto');
@@ -288,20 +267,16 @@ function saveAccount() {
         const reader = new FileReader();
         reader.onload = function(e) {
             db[userIndex].profilePic = e.target.result;
-            localStorage.setItem('wisher_users', JSON.stringify(db));
+            Storage.saveUsers(db);
             document.getElementById('profile-avatar').src = e.target.result;
             alert("Account updated successfully.");
             closeModal('accountModal');
         }
         reader.readAsDataURL(fileInput.files[0]);
     } else {
-        localStorage.setItem('wisher_users', JSON.stringify(db));
+        Storage.saveUsers(db);
         alert("Account updated successfully.");
         closeModal('accountModal');
     }
 }
-function logout() {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('currentUser');
-    window.location.href = 'index.html';
-}
+function logout() { Storage.logout(); }
