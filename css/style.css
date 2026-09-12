@@ -76,11 +76,18 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 .hero .highlight { color: var(--primary-red); }
 .cta-btn { width: auto; font-size: 16px; padding: 14px 32px; }
 .hero-visual { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; height: 400px; }
-.mockup-card { background: var(--bg-white); padding: 16px; border-radius: 16px; box-shadow: var(--shadow-md); width: 240px; position: absolute; z-index: 2; transform: rotate(-5deg); transition: var(--transition); }
+
+/* Perbaikan Outline (Padding Diperkecil) dan Jarak Antar Card (Translate Ditambah) */
+.mockup-card { background: var(--bg-white); padding: 10px; border-radius: 16px; box-shadow: var(--shadow-md); width: 240px; position: absolute; z-index: 2; transform: rotate(-5deg); transition: var(--transition); }
 .mockup-card:hover { transform: rotate(0) scale(1.05); z-index: 4; }
-.mockup-card.float { z-index: 3; transform: rotate(5deg) translate(60px, 80px); }
-.mockup-card.float:hover { transform: rotate(0) scale(1.05) translate(60px, 80px); z-index: 4; }
-.mockup-img { width: 100%; aspect-ratio: 1 / 1; border-radius: 8px; background: var(--bg-light); object-fit: contain; padding: 12px; }
+.mockup-card.float { z-index: 3; transform: rotate(5deg) translate(120px, 90px); }
+.mockup-card.float:hover { transform: rotate(0) scale(1.05) translate(120px, 90px); z-index: 4; }
+.mockup-img { width: 100%; aspect-ratio: 1 / 1; border-radius: 8px; background: var(--bg-light); object-fit: contain; padding: 4px; } 
+
+.mockup-text { margin-top: 16px; }
+.mockup-text .line { height: 12px; border-radius: 6px; background: var(--border-color); margin-bottom: 8px; }
+.mockup-text .line.short { width: 60%; }
+.mockup-text .line.long { width: 100%; }
 
 /* --- BUTTONS AESTHETICS --- */
 .primary-btn, .secondary-btn {
@@ -120,8 +127,8 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 }
 .sidebar.collapsed { width: 72px; padding: 24px 16px; }
 .sidebar.collapsed .hide-on-collapse { display: none !important; }
-.sidebar.collapsed .show-on-collapse { display: flex !important; justify-content: center; align-items: center; text-align: center; }
-.sidebar-actions { margin-bottom: 32px; }
+.sidebar.collapsed .show-on-collapse { display: block !important; text-align: center; }
+.sidebar-actions { margin-bottom: 32px; } 
 
 .sidebar-toggle-btn {
     position: absolute; right: -14px; top: 30px; width: 28px; height: 28px; border-radius: 50%;
@@ -143,15 +150,6 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 .col-header:hover { background: var(--bg-light); }
 .col-header.active { background: rgba(220, 38, 38, 0.08); color: var(--primary-red); }
 
-/* Sidebar Expandable Menu */
-.wl-list { list-style: none; padding-left: 24px; margin-top: 4px; display: none; }
-.wl-list.expanded { display: block; animation: fadeIn 0.3s ease; }
-.wl-item {
-    display: flex; justify-content: space-between; align-items: center; padding: 8px 12px;
-    border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text-gray); transition: var(--transition);
-}
-.wl-item:hover { background: var(--bg-light); color: var(--text-dark); }
-
 /* Drag and Drop Visuals */
 .dragging { opacity: 0.5; transform: scale(0.98); }
 .drag-over { border: 2px dashed var(--primary-red) !important; background-color: rgba(220, 38, 38, 0.05) !important; }
@@ -166,6 +164,15 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 }
 .icon-btn:hover { background: var(--bg-white); color: var(--primary-red); box-shadow: var(--shadow-sm); }
 .icon-btn.delete:hover { color: #dc2626; background: #fee2e2; }
+
+/* Sidebar Expandable Sub-list */
+.wl-list { list-style: none; padding-left: 24px; margin-top: 4px; display: none; }
+.wl-list.expanded { display: block; animation: fadeIn 0.3s ease; }
+.wl-item {
+    display: flex; justify-content: space-between; align-items: center; padding: 8px 12px;
+    border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text-gray); transition: var(--transition);
+}
+.wl-item:hover { background: var(--bg-light); color: var(--text-dark); }
 
 /* Sidebar Profile */
 .sidebar-profile { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-color); position: relative; }

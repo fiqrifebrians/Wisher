@@ -10,8 +10,8 @@
 </head>
 <body class="dashboard-body">
     
-    <!-- Perbaikan Bug Sidebar: Menghilangkan style="width: 72px;" agar transisi extend/collapse berjalan -->
-    <aside class="sidebar collapsed" id="sidebar">
+    <!-- Sidebar Sinkronisasi Penuh di Halaman Collection -->
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-toggle-btn" onclick="toggleSidebar()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
         </div>
@@ -20,7 +20,11 @@
             <h2 class="brand-icon show-on-collapse" style="display:none; color:#000000;">W<span class="dot" style="color:#ff3b3f !important;">.</span></h2>
         </div>
         
-        <div class="menu flex-grow hide-on-collapse" style="margin-top:20px;">
+        <div class="sidebar-actions hide-on-collapse">
+            <button class="primary-btn" onclick="openCollectionModal()" data-i18n="add_collection">+ Add Collection</button>
+        </div>
+
+        <div class="menu flex-grow hide-on-collapse">
             <p class="menu-label" data-i18n="my_collections">My Collections</p>
             <ul id="sidebar-collections">
                 <!-- Dynamically populated via JS for easy navigation -->
@@ -65,6 +69,25 @@
         </div>
     </main>
 
+    <!-- Modal Form (Collection) ditambahkan di sini agar sidebar bisa membuat Koleksi juga -->
+    <div id="collectionModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 id="collectionModalTitle" data-i18n="add_collection">Add Collection</h3>
+                <span class="close-btn" onclick="UI.closeModal('collectionModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label data-i18n="collection_name">Collection Name</label>
+                    <input type="text" id="collectionName" placeholder="E.g., Dream Gadgets">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="primary-btn" onclick="saveCollection()" data-i18n="save_collection">Save Collection</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Form (Add / Edit Item) -->
     <div id="itemModal" class="modal-overlay">
         <div class="modal-content">
@@ -77,7 +100,6 @@
                 
                 <div class="input-group">
                     <label data-i18n="online_link">Online Link (URL)</label>
-                    <!-- Tipe event JavaScript akan menggunakan 'change' untuk menangkap data -->
                     <input type="url" id="itemUrl" placeholder="https://store.com/product...">
                 </div>
 

@@ -7,6 +7,7 @@ const collectionId = urlParams.get('id');
 let collections = Storage.getCollections();
 let currentCollection = collections.find(c => c.id === collectionId);
 let editingItemId = null;
+let editingCollectionId = null;
 
 if (!currentCollection) {
     alert("Collection not found!");
@@ -25,7 +26,7 @@ const i18nCol = {
         confirm_new_password: "Confirm New Password", cancel: "Cancel", save_changes: "Save Changes",
         upload_device: "Upload from Devices", pass_criteria: "Password requires min 9 chars, 1 uppercase, 1 lowercase, 1 number.",
         item_info: "Paste a link to auto-generate, or fill manually.",
-        empty_item: "Add Item"
+        empty_item: "Add Item", add_collection: "+ Add Collection", collection_name: "Collection Name", save_collection: "Save Collection"
     },
     id: {
         my_collections: "Koleksi Saya", my_account: "Akun Saya", sign_out: "Keluar", back: "&larr; Kembali",
@@ -36,7 +37,7 @@ const i18nCol = {
         confirm_new_password: "Konfirmasi Kata Sandi Baru", cancel: "Batal", save_changes: "Simpan Perubahan",
         upload_device: "Unggah dari Perangkat", pass_criteria: "Minimal 9 karakter, 1 huruf besar, 1 huruf kecil, 1 angka.",
         item_info: "Masukkan tautan untuk otomatisasi, atau isi manual.",
-        empty_item: "Tambah Item"
+        empty_item: "Tambah Item", add_collection: "+ Tambah Koleksi", collection_name: "Nama Koleksi", save_collection: "Simpan Koleksi"
     }
 };
 
@@ -55,14 +56,17 @@ window.onload = () => {
 
 function changeLang(lang) {
     UI.changeLang(lang, i18nCol);
+    renderSidebarNav();
     renderCollection();
 }
 
 function saveData() {
     Storage.saveCollections(collections);
+    renderSidebarNav();
     renderCollection();
 }
 
+function toggleProfileMenu() { UI.toggleProfileMenu(); }
 function toggleSidebar() { UI.toggleSidebar(); }
 
 function toggleColDropdown(colId) {
@@ -84,6 +88,8 @@ function renderSidebarNav() {
             <span class="show-on-collapse" style="display:none;" onclick="window.location.href='collection.html?id=${col.id}'" title="${(col.name || '').replace(/"/g, '&quot;')}">${col.name.charAt(0)}</span>
             <div class="action-icons hide-on-collapse">
                 <button class="icon-btn" onclick="toggleColDropdown('${col.id}')" title="Expand">${ICON_CHEVRON}</button>
+                <button class="icon-btn" onclick="openCollectionModal('${col.id}')" title="Edit">${ICON_EDIT}</button>
+                <button class="icon-btn delete" onclick="deleteCollection('${col.id}')" title="Delete">${ICON_DELETE}</button>
             </div>
         `;
         li.appendChild(header);
@@ -91,12 +97,10 @@ function renderSidebarNav() {
         if (col.items && col.items.length > 0) {
             const ul = document.createElement('ul');
             ul.id = `item-list-${col.id}`;
-            // Expand otomatis untuk daftar yang sedang aktif
             ul.className = `wl-list hide-on-collapse ${col.id === collectionId ? 'expanded' : ''}`; 
             col.items.forEach(item => {
                 const itemLi = document.createElement('li');
                 itemLi.className = `wl-item`;
-                // Menghilangkan tanda "-" di text
                 itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">${item.name}</span>`;
                 ul.appendChild(itemLi);
             });
@@ -104,6 +108,51 @@ function renderSidebarNav() {
         }
         listContainer.appendChild(li);
     });
+}
+
+// Logika Hapus Sidebar
+function deleteCollection(id) {
+    if (confirm("Delete this Collection permanently?")) {
+        collections = collections.filter(c => c.id !== id);
+        saveData();
+        if (id === collectionId) {
+            window.location.href = 'dashboard.html';
+        }
+    }
+}
+
+// Logika Modal Sidebar Collection
+function openCollectionModal(id = null) {
+    editingCollectionId = id;
+    UI.openModal('collectionModal');
+    const lang = Storage.getLang();
+    
+    if (id) {
+        const col = collections.find(c => c.id === id);
+        document.getElementById('collectionName').value = col.name;
+        document.getElementById('collectionModalTitle').innerText = 'Edit Collection';
+    } else {
+        document.getElementById('collectionName').value = '';
+        document.getElementById('collectionModalTitle').innerText = i18nCol[lang].add_collection;
+    }
+}
+
+function saveCollection() {
+    const name = document.getElementById('collectionName').value.trim();
+    if(!name) return;
+    
+    if (editingCollectionId) {
+        const col = collections.find(c => c.id === editingCollectionId);
+        col.name = name;
+        if (editingCollectionId === collectionId) {
+            document.getElementById('current-collection-title').innerText = name;
+            currentCollection.name = name;
+        }
+    } else {
+        collections.push({ id: 'col_' + Date.now(), name: name, items: [] });
+    }
+    saveData();
+    UI.closeModal('collectionModal');
 }
 
 // --- LOGIKA FORM ITEM (CRUD & SYNC LINK ASYNC) ---
@@ -125,7 +174,6 @@ function openItemModal(id = null) {
         urlInput.value = item.url || '';
         nameInput.value = item.name;
         
-        // Membersihkan gambar fallback/SVG mentah di form input jika ada sisa dari versi lama
         if (item.imageUrl && item.imageUrl.includes('<svg')) {
             imageInput.value = '';
             itemState.customImageData = null;
@@ -192,7 +240,6 @@ urlInput.addEventListener('change', async (e) => {
     const newUrl = e.target.value.trim();
     if (newUrl && newUrl !== itemState.currentUrl && newUrl.startsWith('http')) {
         
-        // Indikator Loading
         const originalNamePh = nameInput.placeholder;
         nameInput.placeholder = "Mengambil data otomatis...";
         
@@ -227,7 +274,7 @@ function saveItem() {
     const price = priceInput.value;
     if(!name || !price) { alert("Nama dan Harga wajib diisi!"); return; }
     
-    // PENGATURAN GAMBAR: Deteksi Gambar Kosong -> Atur Generik Fallback (Shopping Bag)
+    // PENGATURAN GAMBAR: Deteksi Gambar Kosong -> Atur Generik Fallback (Shopping Bag) secara aman
     let finalImageUrl = itemState.customImageData || imageInput.value.trim();
     if (!finalImageUrl || finalImageUrl === "") {
         finalImageUrl = Storage.FALLBACK_IMAGE;
