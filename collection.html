@@ -15,61 +15,49 @@
             <h2 class="brand-text" style="color:var(--text-dark);">Wisher<span class="dot" style="color:var(--primary-red);">.</span></h2>
         </div>
         <div class="flex-grow"></div>
+        
+        <!-- Sidebar Profile (SINKRON DENGAN DASHBOARD) -->
         <div class="sidebar-profile">
-            <div class="profile-trigger">
+            <div class="profile-trigger" onclick="toggleProfileMenu()">
                 <img src="https://ui-avatars.com/api/?name=User&background=ff3b30&color=fff" id="profile-avatar" alt="Profile">
                 <span id="display-username" class="profile-name">User</span>
+            </div>
+            <div class="profile-dropdown" id="profileDropdown">
+                <button onclick="openMyAccount()">My Account</button>
+                <button class="text-red" onclick="logout()">Sign Out</button>
             </div>
         </div>
     </aside>
 
     <!-- Main Content -->
     <main class="main-content">
+        <!-- Re-posisi Tombol Back ke Kanan -->
         <header class="top-nav">
-            <div style="display:flex; align-items:center; gap: 16px;">
-                <button class="secondary-btn" onclick="window.location.href='dashboard.html'" style="padding: 10px 16px; border-radius: 8px;">&larr; Back</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; width: 100%;">
                 <h1 id="current-collection-title">Loading Collection...</h1>
+                <button class="secondary-btn" onclick="window.location.href='dashboard.html'" style="width: auto; padding: 10px 20px;">&larr; Back</button>
             </div>
         </header>
 
         <div class="board-actions">
-            <button class="primary-btn" onclick="openWishlistModal()" style="width: auto;">+ Add Wishlist</button>
-            <button class="secondary-btn" onclick="openItemModal()" style="width: auto;">+ Add Item</button>
+            <!-- Disederhanakan. User add item secara langsung -->
+            <button class="primary-btn" onclick="openItemModal()" style="width: auto;">+ Add Item</button>
         </div>
 
         <div id="board-content" class="board-content">
-            <!-- Dynamically populated Wishlists & Items -->
+            <!-- Dynamically populated Items -->
         </div>
     </main>
 
-    <!-- Modal Add Wishlist -->
-    <div id="wishlistModal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 400px;">
-            <div class="modal-header">
-                <h3>Add New Wishlist</h3>
-                <span class="close-btn" onclick="closeModal('wishlistModal')">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div class="input-group">
-                    <label>Wishlist Name</label>
-                    <input type="text" id="wishlistName" placeholder="E.g., Work Setup">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="primary-btn" onclick="saveWishlist()">Save Wishlist</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Add / Edit Item (Dengan Logika Sinkronisasi Ketat) -->
+    <!-- Modal Form (Add / Edit Item) -->
     <div id="itemModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Add New Item</h3>
+                <h3 id="itemModalTitle">Add Item</h3>
                 <span class="close-btn" onclick="closeModal('itemModal')">&times;</span>
             </div>
             <div class="modal-body">
-                <p class="info-text">Masukkan link untuk auto-generate harga/nama, atau isi manual.</p>
+                <p class="info-text">Paste a link to auto-generate, or fill manually.</p>
                 
                 <div class="input-group">
                     <label>Online Link (URL)</label>
@@ -81,36 +69,95 @@
                     <input type="text" id="itemName" placeholder="Enter item name">
                 </div>
 
+                <!-- Fleksibilitas Sumber Gambar -->
                 <div class="input-group">
-                    <label>Image URL</label>
-                    <input type="url" id="itemImage" placeholder="https://image-link.com/photo.jpg">
+                    <label>Image Source</label>
+                    <div style="display: flex; gap: 12px;">
+                        <input type="url" id="itemImage" placeholder="Link Image URL" style="flex: 1;">
+                        <input type="file" id="itemImageFile" accept="image/*" style="display:none;" onchange="previewItemImage(event)">
+                        <button class="secondary-btn" onclick="document.getElementById('itemImageFile').click()" style="flex: 0 0 auto; width: auto; font-size:12px;">From Devices</button>
+                    </div>
                 </div>
                 <img id="imagePreview" class="image-preview" src="" alt="Preview" style="display:none;">
 
+                <!-- Layout Harga & Ekspansi Currency -->
                 <div class="input-row">
-                    <div class="input-group">
+                    <div class="input-group" style="flex: 0 0 110px;">
                         <label>Currency</label>
                         <select id="itemCurrency">
-                            <option value="IDR">IDR</option>
-                            <option value="USD">USD</option>
-                            <option value="EUR">EUR</option>
+                            <option value="IDR">IDR (Rp)</option>
+                            <option value="USD">USD ($)</option>
+                            <option value="GBP">GBP (£)</option>
+                            <option value="AUD">AUD ($)</option>
+                            <option value="CNY">CNY (¥)</option>
+                            <option value="JPY">JPY (¥)</option>
+                            <option value="SGD">SGD ($)</option>
                         </select>
                     </div>
-                    <div class="input-group" style="flex: 2;">
+                    <div class="input-group" style="flex: 1;">
                         <label>Price</label>
                         <input type="number" id="itemPrice" placeholder="0">
                     </div>
                 </div>
                 
-                <div class="input-group">
-                    <label>Select Wishlist</label>
-                    <select id="itemWishlist">
-                        <!-- Populated by JS -->
-                    </select>
-                </div>
             </div>
             <div class="modal-footer">
                 <button class="primary-btn" onclick="saveItem()">Save Item</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Form (My Account) SINKRON DARI DASHBOARD -->
+    <div id="accountModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>My Account</h3>
+                <span class="close-btn" onclick="closeModal('accountModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                
+                <div class="profile-upload-section" style="text-align:center; margin-bottom: 24px;">
+                    <img id="accPreviewPic" src="https://ui-avatars.com/api/?name=User&background=ff3b30&color=fff" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin-bottom:12px; border: 2px solid var(--border-color);">
+                    <input type="file" id="accProfilePhoto" accept="image/*" style="display:none;" onchange="previewAccPhoto(event)">
+                    <br>
+                    <button class="secondary-btn" onclick="document.getElementById('accProfilePhoto').click()" style="padding:8px 16px; font-size:13px; width:auto;">Upload from Devices</button>
+                </div>
+
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" id="accUsername" disabled>
+                </div>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="accEmail">
+                </div>
+                
+                <div class="edit-password-section">
+                    <button class="secondary-btn" id="btnEditPassword" onclick="toggleEditPassword()" style="margin-bottom:8px;">Edit Password</button>
+                    
+                    <div id="passwordFields" style="display:none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                        <div class="input-group">
+                            <label>Old Password</label>
+                            <input type="password" id="accOldPassword">
+                        </div>
+                        <div class="input-group">
+                            <label>New Password</label>
+                            <input type="password" id="accNewPassword" oninput="validateAccPassword()">
+                            <p id="acc-error" class="error-text">Password requires min 9 chars, 1 uppercase, 1 lowercase, 1 number.</p>
+                        </div>
+                        <div class="input-group">
+                            <label>Confirm New Password</label>
+                            <input type="password" id="accConfirmPassword">
+                        </div>
+                        <!-- Tombol Cancel Edit Password -->
+                        <div style="display:flex; justify-content: flex-end; margin-top: 12px;">
+                            <button class="secondary-btn" onclick="cancelEditPassword()" style="width:auto; padding:8px 16px; font-size:13px;">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="primary-btn" onclick="saveAccount()">Save Changes</button>
             </div>
         </div>
     </div>

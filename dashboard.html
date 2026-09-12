@@ -32,18 +32,20 @@
     <!-- Main Content -->
     <main class="main-content">
         <header class="top-nav">
-            <h1 id="current-list-title">My Wishlist</h1>
+            <h1 id="current-list-title">My Collections</h1>
             <div class="nav-actions">
-                <select class="lang-select" onchange="changeLang(this.value)">
-                    <option value="en">🇬🇧 EN</option>
-                    <option value="id">🇮🇩 ID</option>
-                </select>
+                <div class="custom-select-wrapper">
+                    <select class="lang-select" onchange="changeLang(this.value)">
+                        <option value="en">🇬🇧 EN</option>
+                        <option value="id">🇮🇩 ID</option>
+                    </select>
+                </div>
             </div>
         </header>
 
         <!-- Tombol Aksi Utama di Konten -->
         <div class="board-actions">
-            <button class="primary-btn" onclick="openCollectionModal()" style="width: auto;">+ Add New Collection</button>
+            <button class="primary-btn" onclick="openCollectionModal()" style="width: auto;">+ Add Collection</button>
         </div>
 
         <!-- Collections Area -->
@@ -52,11 +54,11 @@
         </div>
     </main>
 
-    <!-- Modal Form (Add Collection) -->
+    <!-- Modal Form (Add / Edit Collection) -->
     <div id="collectionModal" class="modal-overlay">
         <div class="modal-content" style="max-width: 400px;">
             <div class="modal-header">
-                <h3>Add New Collection</h3>
+                <h3 id="collectionModalTitle">Add Collection</h3>
                 <span class="close-btn" onclick="closeModal('collectionModal')">&times;</span>
             </div>
             <div class="modal-body">
@@ -79,6 +81,15 @@
                 <span class="close-btn" onclick="closeModal('accountModal')">&times;</span>
             </div>
             <div class="modal-body">
+                
+                <!-- Opsi Foto Profil Kustom -->
+                <div class="profile-upload-section" style="text-align:center; margin-bottom: 24px;">
+                    <img id="accPreviewPic" src="https://ui-avatars.com/api/?name=User&background=ff3b30&color=fff" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin-bottom:12px; border: 2px solid var(--border-color);">
+                    <input type="file" id="accProfilePhoto" accept="image/*" style="display:none;" onchange="previewAccPhoto(event)">
+                    <br>
+                    <button class="secondary-btn" onclick="document.getElementById('accProfilePhoto').click()" style="padding:8px 16px; font-size:13px; width:auto;">Upload from Devices</button>
+                </div>
+
                 <div class="input-group">
                     <label>Username</label>
                     <input type="text" id="accUsername" disabled>
@@ -89,9 +100,9 @@
                 </div>
                 
                 <div class="edit-password-section">
-                    <button class="secondary-btn" id="btnEditPassword" onclick="toggleEditPassword()" style="margin-bottom:16px;">Edit Password</button>
+                    <button class="secondary-btn" id="btnEditPassword" onclick="toggleEditPassword()" style="margin-bottom:8px;">Edit Password</button>
                     
-                    <div id="passwordFields" style="display:none;">
+                    <div id="passwordFields" style="display:none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
                         <div class="input-group">
                             <label>Old Password</label>
                             <input type="password" id="accOldPassword">
@@ -104,6 +115,10 @@
                         <div class="input-group">
                             <label>Confirm New Password</label>
                             <input type="password" id="accConfirmPassword">
+                        </div>
+                        <!-- Tombol Cancel Edit Password -->
+                        <div style="display:flex; justify-content: flex-end; margin-top: 12px;">
+                            <button class="secondary-btn" onclick="cancelEditPassword()" style="width:auto; padding:8px 16px; font-size:13px;">Cancel</button>
                         </div>
                     </div>
                 </div>

@@ -10,14 +10,16 @@
 <body class="landing-body">
     <nav class="navbar main-navbar">
         <div class="brand">
-            <h2 class="brand-text">Wisher<span class="dot">.</span></h2>
+            <h2 class="brand-text">Wisher<span class="dot highlight-dot">.</span></h2>
         </div>
         <div class="nav-actions">
-            <select class="lang-select" onchange="changeLang(this.value)">
-                <option value="en">🇬🇧 EN</option>
-                <option value="id">🇮🇩 ID</option>
-            </select>
-            <a href="auth.html" class="secondary-btn login-nav-btn" data-i18n="login">Login</a>
+            <div class="custom-select-wrapper">
+                <select class="lang-select" onchange="changeLang(this.value)">
+                    <option value="en">🇬🇧 EN</option>
+                    <option value="id">🇮🇩 ID</option>
+                </select>
+            </div>
+            <a href="auth.html" class="primary-btn login-nav-btn" data-i18n="login">Log In</a>
         </div>
     </nav>
 
@@ -47,7 +49,7 @@
     <script>
         const i18n = {
             en: {
-                login: "Login",
+                login: "Log In",
                 hero_title: "Your Personal Wishlist, <br><span class='highlight'>Simplified.</span>",
                 add_wishlist: "Add Wishlist"
             },
