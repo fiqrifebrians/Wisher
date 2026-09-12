@@ -9,10 +9,12 @@
 </head>
 <body class="auth-body">
     <div class="lang-switcher-auth">
-        <select class="lang-select" onchange="changeLang(this.value)">
-            <option value="en">🇬🇧 EN</option>
-            <option value="id">🇮🇩 ID</option>
-        </select>
+        <div class="custom-select-wrapper compact">
+            <select class="lang-select compact" onchange="changeLang(this.value)">
+                <option value="en">🇬🇧 EN</option>
+                <option value="id">🇮🇩 ID</option>
+            </select>
+        </div>
     </div>
 
     <div class="auth-container">
@@ -24,12 +26,12 @@
             
             <div class="input-group">
                 <label data-i18n="username">Username</label>
-                <input type="text" id="login-username" placeholder="Enter username">
+                <input type="text" id="login-username" placeholder="Enter username" data-i18n-ph="username">
             </div>
             <div class="input-group">
                 <label data-i18n="password">Password</label>
                 <div class="password-wrapper">
-                    <input type="password" id="login-password" placeholder="Enter password" oninput="validateLoginPassword()">
+                    <input type="password" id="login-password" placeholder="Enter password" oninput="validateLoginPassword()" data-i18n-ph="password">
                     <span class="toggle-password" onclick="togglePasswordVisibility('login-password')">
                         <svg class="eye-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle><line class="slash" x1="3" y1="3" x2="21" y2="21" style="display:none;"></line></svg>
                     </span>
@@ -49,16 +51,16 @@
             
             <div class="input-group">
                 <label data-i18n="username">Username</label>
-                <input type="text" id="signup-username" placeholder="Create username">
+                <input type="text" id="signup-username" placeholder="Create username" data-i18n-ph="username">
             </div>
             <div class="input-group">
                 <label data-i18n="email">Email</label>
-                <input type="email" id="signup-email" placeholder="Enter email">
+                <input type="email" id="signup-email" placeholder="Enter email" data-i18n-ph="email">
             </div>
             <div class="input-group">
                 <label data-i18n="password">Password</label>
                 <div class="password-wrapper">
-                    <input type="password" id="signup-password" placeholder="Create password" oninput="validateSignupPassword()">
+                    <input type="password" id="signup-password" placeholder="Create password" oninput="validateSignupPassword()" data-i18n-ph="password">
                     <span class="toggle-password" onclick="togglePasswordVisibility('signup-password')">
                         <svg class="eye-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle><line class="slash" x1="3" y1="3" x2="21" y2="21" style="display:none;"></line></svg>
                     </span>
@@ -68,7 +70,7 @@
             <div class="input-group">
                 <label data-i18n="confirm_password">Confirm Password</label>
                 <div class="password-wrapper">
-                    <input type="password" id="signup-confirm-password" placeholder="Confirm password">
+                    <input type="password" id="signup-confirm-password" placeholder="Confirm password" data-i18n-ph="confirm_password">
                     <span class="toggle-password" onclick="togglePasswordVisibility('signup-confirm-password')">
                         <svg class="eye-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle><line class="slash" x1="3" y1="3" x2="21" y2="21" style="display:none;"></line></svg>
                     </span>
