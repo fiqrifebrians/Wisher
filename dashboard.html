@@ -12,14 +12,26 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="brand">
-            <h2 class="brand-text">Wisher<span class="dot">.</span></h2>
+            <h2 class="brand-text" style="color:var(--text-dark);">Wisher<span class="dot" style="color:var(--primary-red);">.</span></h2>
         </div>
-        <button class="primary-btn new-list-btn" onclick="createNewWishlist()">+ New Wishlist</button>
-        <div class="menu">
-            <p class="menu-label">MY WISHLISTS</p>
+        <button class="primary-btn new-list-btn" onclick="createNewWishlist()" data-i18n="new_wishlist">+ New Wishlist</button>
+        <div class="menu flex-grow">
+            <p class="menu-label" data-i18n="my_wishlists">MY WISHLISTS</p>
             <ul id="wishlist-menu">
                 <!-- Dynamically populated via JS -->
             </ul>
+        </div>
+        
+        <!-- Sidebar Profile with Dropdown -->
+        <div class="sidebar-profile">
+            <div class="profile-trigger" onclick="toggleProfileMenu()">
+                <img src="https://ui-avatars.com/api/?name=User&background=ff3b30&color=fff" id="profile-avatar" alt="Profile">
+                <span id="display-username" class="profile-name">User</span>
+            </div>
+            <div class="profile-dropdown" id="profileDropdown">
+                <button onclick="openMyAccount()" data-i18n="my_account">My Account</button>
+                <button class="text-red" onclick="logout()" data-i18n="sign_out">Sign Out</button>
+            </div>
         </div>
     </aside>
 
@@ -28,25 +40,21 @@
         <header class="top-nav">
             <h1 id="current-list-title">My Wishlist</h1>
             <div class="nav-actions">
-                <select class="lang-select">
+                <select class="lang-select" onchange="changeLang(this.value)">
                     <option value="en">🇬🇧 EN</option>
                     <option value="id">🇮🇩 ID</option>
                 </select>
-                <div class="user-profile" onclick="logout()">
-                    <img src="https://ui-avatars.com/api/?name=User&background=ff3b30&color=fff" alt="Profile" title="Click to Logout">
-                </div>
             </div>
         </header>
 
         <div id="board-actions-container" class="board-actions" style="display:none;">
-            <!-- SWAPPED POSITION: Add Category on the left, Add Item on the right -->
-            <button class="secondary-btn" onclick="addCategory()">+ Add Category</button>
-            <button class="secondary-btn" onclick="openModal()">+ Add Item</button>
+            <button class="secondary-btn" onclick="openCollectionModal()" data-i18n="add_collection">+ Add Collection</button>
+            <button class="secondary-btn" onclick="openModal()" data-i18n="add_item">+ Add Item</button>
         </div>
 
-        <!-- Categories and Items Render Area -->
+        <!-- Collections and Items Render Area -->
         <div id="board-content" class="board-content">
-            <!-- Empty state or dynamically populated via JS -->
+            <!-- Dynamically populated via JS -->
         </div>
     </main>
 
@@ -54,31 +62,31 @@
     <div id="itemModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Add / Edit Item</h3>
-                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h3 data-i18n="add_edit_item">Add / Edit Item</h3>
+                <span class="close-btn" onclick="closeModal('itemModal')">&times;</span>
             </div>
             <div class="modal-body">
-                <p class="info-text">Paste a link to auto-generate, or fill manually.</p>
+                <p class="info-text" data-i18n="item_info">Paste a link to auto-generate, or fill manually.</p>
                 
                 <div class="input-group">
-                    <label>Online Link (URL)</label>
+                    <label data-i18n="link_url">Online Link (URL)</label>
                     <input type="url" id="itemUrl" placeholder="https://store.com/product...">
                 </div>
 
                 <div class="input-group">
-                    <label>Item Name</label>
+                    <label data-i18n="item_name">Item Name</label>
                     <input type="text" id="itemName" placeholder="Enter item name">
                 </div>
 
                 <div class="input-group">
-                    <label>Image URL (Customizable)</label>
+                    <label data-i18n="image_url">Image URL (Customizable)</label>
                     <input type="url" id="itemImage" placeholder="https://image-link.com/photo.jpg">
                 </div>
                 <img id="imagePreview" class="image-preview" src="" alt="Preview" style="display:none;">
 
                 <div class="input-row">
                     <div class="input-group">
-                        <label>Currency</label>
+                        <label data-i18n="currency">Currency</label>
                         <select id="itemCurrency">
                             <option value="IDR">IDR</option>
                             <option value="USD">USD</option>
@@ -86,21 +94,83 @@
                         </select>
                     </div>
                     <div class="input-group" style="flex: 2;">
-                        <label>Price</label>
+                        <label data-i18n="price">Price</label>
                         <input type="number" id="itemPrice" placeholder="0">
                     </div>
                 </div>
                 
                 <div class="input-group">
-                    <label>Category</label>
-                    <select id="itemCategory">
-                        <option value="uncategorized">Uncategorized</option>
-                        <!-- Dynamic Categories here -->
+                    <label data-i18n="collection">Collection</label>
+                    <select id="itemCollection">
+                        <option value="uncategorized" data-i18n="no_collection">No Collection</option>
+                        <!-- Dynamic Collections here -->
                     </select>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="primary-btn" onclick="saveItem()">Save Item</button>
+                <button class="primary-btn" onclick="saveItem()" data-i18n="save_item">Save Item</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Form (Add Collection) -->
+    <div id="collectionModal" class="modal-overlay">
+        <div class="modal-content collection-modal">
+            <div class="modal-header">
+                <h3 data-i18n="add_new_collection">Add New Collection</h3>
+                <span class="close-btn" onclick="closeModal('collectionModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label data-i18n="collection_name">Collection Name</label>
+                    <input type="text" id="collectionName" placeholder="E.g., Dream Gadgets">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="primary-btn" onclick="saveCollection()" data-i18n="save_collection">Save Collection</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Form (My Account) -->
+    <div id="accountModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n="my_account">My Account</h3>
+                <span class="close-btn" onclick="closeModal('accountModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label data-i18n="username">Username</label>
+                    <input type="text" id="accUsername" disabled>
+                </div>
+                <div class="input-group">
+                    <label data-i18n="email">Email</label>
+                    <input type="email" id="accEmail">
+                </div>
+                
+                <div class="edit-password-section">
+                    <button class="secondary-btn" id="btnEditPassword" onclick="toggleEditPassword()" data-i18n="edit_password" style="width:100%; margin-bottom:16px;">Edit Password</button>
+                    
+                    <div id="passwordFields" style="display:none;">
+                        <div class="input-group">
+                            <label data-i18n="old_password">Old Password</label>
+                            <input type="password" id="accOldPassword">
+                        </div>
+                        <div class="input-group">
+                            <label data-i18n="new_password">New Password</label>
+                            <input type="password" id="accNewPassword" oninput="validateAccPassword()">
+                            <p id="acc-error" class="error-text" data-i18n="pass_criteria">Password requires min 9 chars, 1 uppercase, 1 lowercase, 1 number.</p>
+                        </div>
+                        <div class="input-group">
+                            <label data-i18n="confirm_new_password">Confirm New Password</label>
+                            <input type="password" id="accConfirmPassword">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="primary-btn" onclick="saveAccount()" data-i18n="save_changes">Save Changes</button>
             </div>
         </div>
     </div>

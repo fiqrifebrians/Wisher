@@ -8,24 +8,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="landing-body">
-    <nav class="navbar">
+    <nav class="navbar main-navbar">
         <div class="brand">
             <h2 class="brand-text">Wisher<span class="dot">.</span></h2>
         </div>
         <div class="nav-actions">
-            <select class="lang-select">
+            <select class="lang-select" onchange="changeLang(this.value)">
                 <option value="en">🇬🇧 EN</option>
                 <option value="id">🇮🇩 ID</option>
             </select>
-            <a href="auth.html" class="secondary-btn login-nav-btn">Login</a>
+            <a href="auth.html" class="secondary-btn login-nav-btn" data-i18n="login">Login</a>
         </div>
     </nav>
 
     <header class="hero">
         <div class="hero-content">
-            <h1>Your Personal Wishlist, <br><span class="highlight">Simplified.</span></h1>
-            <p>Curate, organize, and track everything you want in one beautiful, minimalist space.</p>
-            <button class="primary-btn cta-btn" onclick="handleCta()">Add Wishlist</button>
+            <h1 data-i18n="hero_title">Your Personal Wishlist, <br><span class="highlight">Simplified.</span></h1>
+            <button class="primary-btn cta-btn" onclick="handleCta()" data-i18n="add_wishlist">Add Wishlist</button>
         </div>
         <div class="hero-visual">
             <div class="mockup-card">
@@ -46,6 +45,35 @@
     </header>
 
     <script>
+        const i18n = {
+            en: {
+                login: "Login",
+                hero_title: "Your Personal Wishlist, <br><span class='highlight'>Simplified.</span>",
+                add_wishlist: "Add Wishlist"
+            },
+            id: {
+                login: "Masuk",
+                hero_title: "Wishlist Personal Anda, <br><span class='highlight'>Lebih Mudah.</span>",
+                add_wishlist: "Tambah Wishlist"
+            }
+        };
+
+        function changeLang(lang) {
+            localStorage.setItem('wisher_lang', lang);
+            document.querySelector('.lang-select').value = lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[lang] && i18n[lang][key]) {
+                    el.innerHTML = i18n[lang][key];
+                }
+            });
+        }
+
+        window.onload = () => {
+            const savedLang = localStorage.getItem('wisher_lang') || 'en';
+            changeLang(savedLang);
+        };
+
         function handleCta() {
             if (localStorage.getItem('isLoggedIn') === 'true') {
                 window.location.href = 'dashboard.html';
