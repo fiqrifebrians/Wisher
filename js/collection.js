@@ -14,6 +14,7 @@ if (!currentCollection) {
 }
 if (!currentCollection.items) { currentCollection.items = []; }
 
+// Kamus Koleksi
 const i18nCol = {
     en: {
         my_collections: "My Collections", my_account: "My Account", sign_out: "Sign Out", back: "&larr; Back",
@@ -23,7 +24,8 @@ const i18nCol = {
         edit_password: "Edit Password", old_password: "Old Password", new_password: "New Password",
         confirm_new_password: "Confirm New Password", cancel: "Cancel", save_changes: "Save Changes",
         upload_device: "Upload from Devices", pass_criteria: "Password requires min 9 chars, 1 uppercase, 1 lowercase, 1 number.",
-        item_info: "Paste a link to auto-generate, or fill manually.", empty_item: "Add Item"
+        item_info: "Paste a link to auto-generate, or fill manually.",
+        empty_item: "Add Item"
     },
     id: {
         my_collections: "Koleksi Saya", my_account: "Akun Saya", sign_out: "Keluar", back: "&larr; Kembali",
@@ -33,7 +35,8 @@ const i18nCol = {
         edit_password: "Ubah Kata Sandi", old_password: "Kata Sandi Lama", new_password: "Kata Sandi Baru",
         confirm_new_password: "Konfirmasi Kata Sandi Baru", cancel: "Batal", save_changes: "Simpan Perubahan",
         upload_device: "Unggah dari Perangkat", pass_criteria: "Minimal 9 karakter, 1 huruf besar, 1 huruf kecil, 1 angka.",
-        item_info: "Masukkan tautan untuk otomatisasi, atau isi manual.", empty_item: "Tambah Item"
+        item_info: "Masukkan tautan untuk otomatisasi, atau isi manual.",
+        empty_item: "Tambah Item"
     }
 };
 
@@ -60,9 +63,10 @@ function saveData() {
     renderCollection();
 }
 
+function toggleProfileMenu() { UI.toggleProfileMenu(); }
 function toggleSidebar() { UI.toggleSidebar(); }
+function closeModal(id) { UI.closeModal(id); }
 
-// Fitur Expand Dropdown Sidebar Collection
 function toggleColDropdown(colId) {
     const ul = document.getElementById(`item-list-${colId}`);
     if (ul) ul.classList.toggle('expanded');
@@ -89,7 +93,7 @@ function renderSidebarNav() {
         if (col.items && col.items.length > 0) {
             const ul = document.createElement('ul');
             ul.id = `item-list-${col.id}`;
-            ul.className = `wl-list hide-on-collapse ${col.id === collectionId ? 'expanded' : ''}`; // Otomatis kebuka kalau sedang di koleksi itu
+            ul.className = `wl-list hide-on-collapse ${col.id === collectionId ? 'expanded' : ''}`; 
             col.items.forEach(item => {
                 const itemLi = document.createElement('li');
                 itemLi.className = `wl-item`;
@@ -102,7 +106,7 @@ function renderSidebarNav() {
     });
 }
 
-// --- LOGIKA FORM ITEM & SINKRONISASI LINK CERDAS ---
+// --- LOGIKA FORM ITEM (CRUD & SYNC LINK) ---
 let itemState = { isManualName: false, isManualImage: false, currentUrl: "", customImageData: null };
 
 const urlInput = document.getElementById('itemUrl');
@@ -121,7 +125,11 @@ function openItemModal(id = null) {
         urlInput.value = item.url || '';
         nameInput.value = item.name;
         
-        if(item.imageUrl && item.imageUrl.startsWith('data:image')) {
+        // Membersihkan gambar fallback/SVG mentah di form input jika ada sisa dari versi lama
+        if (item.imageUrl && item.imageUrl.includes('<svg')) {
+            imageInput.value = '';
+            itemState.customImageData = null;
+        } else if (item.imageUrl && item.imageUrl.startsWith('data:image')) {
             itemState.customImageData = item.imageUrl;
             imageInput.value = '';
         } else {
@@ -131,7 +139,12 @@ function openItemModal(id = null) {
         
         priceInput.value = item.price;
         currencySelect.value = item.currency;
-        document.getElementById('imagePreview').src = item.imageUrl;
+        
+        // Atur Preview
+        let safePreviewUrl = item.imageUrl;
+        if (!safePreviewUrl || safePreviewUrl.includes('<svg')) safePreviewUrl = Storage.FALLBACK_IMAGE;
+        
+        document.getElementById('imagePreview').src = safePreviewUrl;
         document.getElementById('imagePreview').style.display = 'block';
         document.getElementById('itemModalTitle').innerText = 'Edit Item';
         
@@ -175,7 +188,7 @@ function previewItemImage(event) {
     });
 }
 
-// Sinkronisasi Link dengan Fallback Cerdas (Gambar Default Dihindari di Form)
+// Sinkronisasi Link Cerdas
 urlInput.addEventListener('input', (e) => {
     const newUrl = e.target.value.trim();
     if (newUrl && newUrl !== itemState.currentUrl && newUrl.startsWith('http')) {
@@ -195,13 +208,12 @@ urlInput.addEventListener('input', (e) => {
     }
 });
 
-// Realokasi Fallback Generik di Background Proses Save
 function saveItem() {
     const name = nameInput.value.trim();
     const price = priceInput.value;
     if(!name || !price) { alert("Nama dan Harga wajib diisi!"); return; }
     
-    // Cek jika Gambar Kosong -> Tembak Generik di Background
+    // Fallback Generik Otomatis jika kosong
     let finalImageUrl = itemState.customImageData || imageInput.value.trim();
     if (!finalImageUrl || finalImageUrl === "") {
         finalImageUrl = Storage.FALLBACK_IMAGE;
@@ -222,6 +234,7 @@ function saveItem() {
     UI.closeModal('itemModal');
 }
 
+// Render UI Item Koleksi
 function renderCollection() {
     const content = document.getElementById('board-content');
     const lang = Storage.getLang();
@@ -239,14 +252,20 @@ function renderCollection() {
         if(item.currency==='CNY'||item.currency==='JPY') currencySymbol='¥';
         if(item.currency==='IDR') currencySymbol='Rp';
 
-        // Pencegahan Sintaks Bocor pada alt string interpolasi
+        // PERBAIKAN: Sanitasi data lama jika menyimpan raw SVG code yang merusak layout HTML
+        let safeImageUrl = item.imageUrl;
+        if (!safeImageUrl || (safeImageUrl.includes('<svg') && safeImageUrl.includes('data:image'))) {
+            safeImageUrl = Storage.FALLBACK_IMAGE;
+        }
+
+        // Pencegahan Sintaks Bocor pada atribut alt
         const safeName = item.name ? item.name.replace(/"/g, '&quot;') : 'Product';
 
         html += `
             <div class="item-card">
                 <button class="edit-icon-card" onclick="editItem(event, '${item.id}')">${ICON_EDIT}</button>
                 <button class="delete-icon-card" onclick="deleteItem(event, '${item.id}')">${ICON_DELETE}</button>
-                <img class="item-img" src="${item.imageUrl}" alt="${safeName}">
+                <img class="item-img" src="${safeImageUrl}" alt="${safeName}">
                 <div class="item-details">
                     <h4>${item.name}</h4>
                     <p class="item-price">${currencySymbol} ${item.price.toLocaleString()}</p>

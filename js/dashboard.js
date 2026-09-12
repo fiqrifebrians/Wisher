@@ -3,7 +3,7 @@ if (!Storage.isLoggedIn()) { window.location.href = 'index.html'; }
 const currentUser = Storage.getCurrentUser();
 let collections = Storage.getCollections();
 let editingCollectionId = null;
-let draggedColId = null; // Menyimpan status drag dua arah
+let draggedColId = null; 
 
 const i18nDash = {
     en: {
@@ -85,13 +85,11 @@ function handleDragEndCol(e) {
     document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
 }
 
-// Fitur Expand Dropdown Menu Koleksi di Sidebar
 function toggleColDropdown(colId) {
     const ul = document.getElementById(`item-list-${colId}`);
     if (ul) ul.classList.toggle('expanded');
 }
 
-// Render Sidebar dengan Penambahan Tombol Dropdown
 function renderSidebar() {
     const listContainer = document.getElementById('sidebar-collections');
     listContainer.innerHTML = '';
@@ -106,7 +104,6 @@ function renderSidebar() {
             <span class="hide-on-collapse" style="flex:1;" onclick="window.location.href='collection.html?id=${col.id}'">${col.name}</span>
             <span class="show-on-collapse" style="display:none;" onclick="window.location.href='collection.html?id=${col.id}'" title="${(col.name || '').replace(/"/g, '&quot;')}">${col.name.charAt(0)}</span>
             <div class="action-icons hide-on-collapse">
-                <!-- Dropdown Button Chevron Arrow -->
                 <button class="icon-btn" onclick="toggleColDropdown('${col.id}')" title="Expand">${ICON_CHEVRON}</button>
                 <button class="icon-btn" onclick="openCollectionModal('${col.id}')" title="Edit">${ICON_EDIT}</button>
                 <button class="icon-btn delete" onclick="deleteCollection('${col.id}')" title="Delete">${ICON_DELETE}</button>
@@ -114,7 +111,6 @@ function renderSidebar() {
         `;
         li.appendChild(header);
 
-        // Sub-list untuk item di sidebar (Dropdown)
         if (col.items && col.items.length > 0) {
             const ul = document.createElement('ul');
             ul.id = `item-list-${col.id}`;
@@ -132,7 +128,6 @@ function renderSidebar() {
     });
 }
 
-// Render Konten Dashboard Utama & Collage Gambar (Bebas Bug Sintaks)
 function renderMainContent() {
     const content = document.getElementById('board-content');
     const lang = Storage.getLang();
@@ -146,22 +141,25 @@ function renderMainContent() {
     collections.forEach(col => {
         const itemCount = col.items ? col.items.length : 0;
         
-        // Logika Dynamic Photo Collage Grid Square
         let collageHtml = `<div class="collection-card-collage collage-${Math.min(itemCount, 4)}">`;
         if (itemCount === 0) {
-            // Gunakan SVG murni tanpa tag img bocor jika kosong
-            collageHtml += `<img src="${Storage.FALLBACK_IMAGE}" class="collage-img" alt="Empty">`;
+            collageHtml += `<img src="${Storage.FALLBACK_IMAGE}" class="collage-img" alt="Empty" style="padding: 24px; object-fit: contain;">`;
         } else {
             const displayItems = col.items.slice(0, 4);
             displayItems.forEach((item, idx) => {
-                // Pencegahan String Interpolation Bug pada alt attribute
+                // PERBAIKAN: Sanitasi data lama jika berisi SVG mentah yang merusak layout
+                let safeImageUrl = item.imageUrl;
+                if (!safeImageUrl || (safeImageUrl.includes('<svg') && safeImageUrl.includes('data:image'))) {
+                    safeImageUrl = Storage.FALLBACK_IMAGE;
+                }
+                
+                // Pencegahan Sintaks Bocor pada alt string interpolasi
                 const safeName = item.name ? item.name.replace(/"/g, '&quot;') : 'Product';
-                collageHtml += `<img src="${item.imageUrl}" class="collage-img img-${idx}" alt="${safeName}">`;
+                collageHtml += `<img src="${safeImageUrl}" class="collage-img img-${idx}" alt="${safeName}">`;
             });
         }
         collageHtml += `</div>`;
 
-        // Card dengan Two-Way D&D Sinkronisasi
         html += `
             <div class="collection-card" draggable="true" 
                 ondragstart="handleDragStartCol(event, '${col.id}')"
