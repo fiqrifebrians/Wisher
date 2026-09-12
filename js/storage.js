@@ -16,15 +16,36 @@ const Storage = {
         window.location.href = 'index.html';
     },
 
-    // Fungsi Scraping Dinamis Data Link
+    // Gambar Fallback Generik Shopping Bag Minimalis
+    FALLBACK_IMAGE: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 24 24" fill="none" stroke="%239ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>',
+
+    // Simulasi Scraping Cerdas Berdasarkan Keyword Domain
     simulateScrapeData: (url) => {
-        let domain = "Store";
-        try { domain = new URL(url).hostname.replace('www.', ''); } catch(e){}
+        const lowerUrl = url.toLowerCase();
+        let productName = "Produk Pilihan";
+        let price = Math.floor(Math.random() * 500) + 10;
+        let currency = 'USD';
+        
+        if (lowerUrl.includes('tokopedia') || lowerUrl.includes('tokped')) {
+            productName = "Produk Tokopedia"; price = Math.floor(Math.random() * 500000) + 50000; currency = 'IDR';
+        } else if (lowerUrl.includes('shopee')) {
+            productName = "Barang Shopee"; price = Math.floor(Math.random() * 500000) + 50000; currency = 'IDR';
+        } else if (lowerUrl.includes('amazon')) {
+            productName = "Amazon Item"; price = Math.floor(Math.random() * 200) + 10; currency = 'USD';
+        } else if (lowerUrl.includes('apple')) {
+            productName = "Apple Device"; price = Math.floor(Math.random() * 1000) + 500; currency = 'USD';
+        } else {
+            try { 
+                const domain = new URL(url).hostname.replace('www.', '').split('.')[0];
+                productName = `Produk dari ${domain.charAt(0).toUpperCase() + domain.slice(1)}`;
+            } catch(e){}
+        }
+
         return {
-            scrapedName: `Produk Pilihan ${domain}`,
-            scrapedImage: `https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80`,
-            scrapedPrice: Math.floor(Math.random() * 500) + 10, 
-            scrapedCurrency: 'USD'
+            scrapedName: productName,
+            scrapedImage: Storage.FALLBACK_IMAGE, // Gunakan fallback generik sebagai default auto-generate
+            scrapedPrice: price, 
+            scrapedCurrency: currency
         };
     }
 };

@@ -17,7 +17,7 @@ if (!currentCollection.items) { currentCollection.items = []; }
 // Kamus Koleksi
 const i18nCol = {
     en: {
-        my_account: "My Account", sign_out: "Sign Out", back: "&larr; Back",
+        my_collections: "My Collections", my_account: "My Account", sign_out: "Sign Out", back: "&larr; Back",
         add_item: "+ Add Item", online_link: "Online Link (URL)", item_name: "Item Name",
         image_source: "Image Source", from_devices: "From Devices", currency: "Currency",
         price: "Price", save_item: "Save Item", username: "Username", email: "Email",
@@ -28,7 +28,7 @@ const i18nCol = {
         empty_item: "Add Item"
     },
     id: {
-        my_account: "Akun Saya", sign_out: "Keluar", back: "&larr; Kembali",
+        my_collections: "Koleksi Saya", my_account: "Akun Saya", sign_out: "Keluar", back: "&larr; Kembali",
         add_item: "+ Tambah Item", online_link: "Tautan (URL)", item_name: "Nama Item",
         image_source: "Sumber Gambar", from_devices: "Dari Perangkat", currency: "Mata Uang",
         price: "Harga", save_item: "Simpan Item", username: "Nama Pengguna", email: "Email",
@@ -44,10 +44,12 @@ const ICON_EDIT = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" s
 const ICON_DELETE = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
 
 window.onload = () => {
-    // Sinkronisasi Initial State Segera
+    // Sinkronisasi Judul Otomatis (State Riil)
     document.getElementById('current-collection-title').innerText = currentCollection.name;
+    document.getElementById('display-username').innerText = currentUser;
     UI.loadProfileData();
     UI.changeLang(Storage.getLang(), i18nCol);
+    renderSidebarNav();
     renderCollection();
 };
 
@@ -61,9 +63,25 @@ function saveData() {
     renderCollection();
 }
 
-function toggleProfileMenu() { UI.toggleProfileMenu(); }
 function toggleSidebar() { UI.toggleSidebar(); }
-function closeModal(id) { UI.closeModal(id); }
+
+// Memanfaatkan sidebar di halaman ini sebagai navigasi cepat antar koleksi
+function renderSidebarNav() {
+    const listContainer = document.getElementById('sidebar-collections');
+    listContainer.innerHTML = '';
+    collections.forEach(col => {
+        const li = document.createElement('li');
+        li.className = 'col-item-wrapper';
+        const header = document.createElement('div');
+        header.className = `col-header ${col.id === collectionId ? 'active' : ''}`;
+        header.innerHTML = `
+            <span class="hide-on-collapse" style="flex:1;" onclick="window.location.href='collection.html?id=${col.id}'">${col.name}</span>
+            <span class="show-on-collapse" style="display:none;" onclick="window.location.href='collection.html?id=${col.id}'" title="${col.name}">${col.name.charAt(0)}</span>
+        `;
+        li.appendChild(header);
+        listContainer.appendChild(li);
+    });
+}
 
 // --- LOGIKA FORM ITEM (CRUD & SYNC LINK) ---
 let itemState = { isManualName: false, isManualImage: false, currentUrl: "", customImageData: null };
@@ -101,7 +119,6 @@ function openItemModal(id = null) {
         itemState.isManualName = true;
         itemState.isManualImage = true;
         itemState.currentUrl = item.url || "";
-        
     } else {
         urlInput.value = ''; nameInput.value = ''; imageInput.value = ''; 
         document.getElementById('itemImageFile').value = '';
@@ -111,10 +128,7 @@ function openItemModal(id = null) {
     }
 }
 
-function editItem(e, id) {
-    e.stopPropagation();
-    openItemModal(id);
-}
+function editItem(e, id) { e.stopPropagation(); openItemModal(id); }
 
 function deleteItem(e, id) {
     e.stopPropagation();
@@ -124,14 +138,15 @@ function deleteItem(e, id) {
     }
 }
 
-// Interupsi Aktivitas Manual Gambar & Nama
+// Event Sinkronisasi Pengubahan Gambar/Nama
 nameInput.addEventListener('input', () => { itemState.isManualName = nameInput.value.trim() !== ""; });
 imageInput.addEventListener('input', () => { 
     itemState.isManualImage = imageInput.value.trim() !== "";
     itemState.customImageData = null; 
     document.getElementById('itemImageFile').value = ''; 
-    document.getElementById('imagePreview').src = imageInput.value;
-    document.getElementById('imagePreview').style.display = itemState.isManualImage ? 'block' : 'none';
+    const preview = document.getElementById('imagePreview');
+    preview.src = imageInput.value;
+    preview.style.display = itemState.isManualImage ? 'block' : 'none';
 });
 
 function previewItemImage(event) {
@@ -142,7 +157,7 @@ function previewItemImage(event) {
     });
 }
 
-// EKSEKUSI KONDISIONAL SINKRONISASI MANUAL-KE-LINK
+// EKSEKUSI AUTO-GENERATE LINK (CERDAS)
 urlInput.addEventListener('input', (e) => {
     const newUrl = e.target.value.trim();
     if (newUrl && newUrl !== itemState.currentUrl && newUrl.startsWith('http')) {
@@ -151,8 +166,9 @@ urlInput.addEventListener('input', (e) => {
         if (!itemState.isManualName) { nameInput.value = data.scrapedName; }
         if (!itemState.isManualImage) {
             imageInput.value = data.scrapedImage;
-            document.getElementById('imagePreview').src = data.scrapedImage;
-            document.getElementById('imagePreview').style.display = 'block';
+            const preview = document.getElementById('imagePreview');
+            preview.src = data.scrapedImage;
+            preview.style.display = 'block';
         }
 
         priceInput.value = data.scrapedPrice;
@@ -166,7 +182,8 @@ function saveItem() {
     const price = priceInput.value;
     if(!name || !price) { alert("Nama dan Harga wajib diisi!"); return; }
     
-    const finalImageUrl = itemState.customImageData || imageInput.value || 'https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=400';
+    // Fallback Generik Otomatis jika kosong
+    const finalImageUrl = itemState.customImageData || imageInput.value || Storage.FALLBACK_IMAGE;
     
     if (editingItemId) {
         const item = currentCollection.items.find(i => i.id === editingItemId);
@@ -180,10 +197,10 @@ function saveItem() {
     }
     
     saveData();
-    closeModal('itemModal');
+    UI.closeModal('itemModal');
 }
 
-// Render Data Item pada UI Koleksi
+// Render UI Item Koleksi
 function renderCollection() {
     const content = document.getElementById('board-content');
     const lang = Storage.getLang();
@@ -205,7 +222,7 @@ function renderCollection() {
             <div class="item-card">
                 <button class="edit-icon-card" onclick="editItem(event, '${item.id}')">${ICON_EDIT}</button>
                 <button class="delete-icon-card" onclick="deleteItem(event, '${item.id}')">${ICON_DELETE}</button>
-                <div class="item-img" style="background-image: url('${item.imageUrl}');"></div>
+                <img class="item-img" src="${item.imageUrl}" alt="${item.name}">
                 <div class="item-details">
                     <h4>${item.name}</h4>
                     <p class="item-price">${currencySymbol} ${item.price.toLocaleString()}</p>
@@ -218,7 +235,7 @@ function renderCollection() {
     content.innerHTML = html;
 }
 
-// --- AKUN & PROFIL LOGIC SINKRON DENGAN DASHBOARD ---
+// AKUN LOGIC
 function openMyAccount() {
     const db = Storage.getUsers();
     const userObj = db.find(u => u.username === currentUser);
@@ -270,13 +287,13 @@ function saveAccount() {
             Storage.saveUsers(db);
             document.getElementById('profile-avatar').src = e.target.result;
             alert("Account updated successfully.");
-            closeModal('accountModal');
+            UI.closeModal('accountModal');
         }
         reader.readAsDataURL(fileInput.files[0]);
     } else {
         Storage.saveUsers(db);
         alert("Account updated successfully.");
-        closeModal('accountModal');
+        UI.closeModal('accountModal');
     }
 }
 function logout() { Storage.logout(); }

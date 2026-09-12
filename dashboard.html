@@ -10,36 +10,26 @@
 </head>
 <body class="dashboard-body">
     
-    <!-- Collapsible Sidebar -->
     <aside class="sidebar" id="sidebar">
-        <!-- Toggle Button -->
         <div class="sidebar-toggle-btn" onclick="toggleSidebar()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
         </div>
-
         <div class="brand">
-            <!-- Visual Logika Collapsed: Hitam pekat untuk inisial W, Orange cerah untuk titik (.) -->
-            <h2 class="brand-text hide-on-collapse" style="color:var(--text-dark);">Wisher<span class="dot" style="color:var(--primary-red) !important;">.</span></h2>
-            <h2 class="brand-icon show-on-collapse" style="color:#000000; display:none;">W<span class="dot" style="color:var(--primary-red) !important;">.</span></h2>
+            <h2 class="brand-text hide-on-collapse">Wisher<span class="dot highlight-dot">.</span></h2>
+            <h2 class="brand-icon show-on-collapse">W<span class="dot highlight-dot">.</span></h2>
         </div>
-        
-        <div class="sidebar-actions hide-on-collapse" style="margin-bottom: 24px;">
+        <div class="sidebar-actions hide-on-collapse">
             <button class="primary-btn" onclick="openCollectionModal()" data-i18n="add_collection">+ Add Collection</button>
         </div>
-
-        <!-- Collections Menu -->
         <div class="menu flex-grow hide-on-collapse">
-            <!-- Standarisasi Format Title Case -->
             <p class="menu-label" data-i18n="my_collections">My Collections</p>
             <ul id="sidebar-collections">
                 <!-- Dynamically populated via JS -->
             </ul>
         </div>
-        
-        <!-- Sidebar Profile -->
         <div class="sidebar-profile">
-            <div class="profile-trigger" onclick="toggleProfileMenu()">
-                <img src="https://ui-avatars.com/api/?name=User&background=f97316&color=fff" id="profile-avatar" alt="Profile">
+            <div class="profile-trigger" onclick="UI.toggleProfileMenu()">
+                <img src="https://ui-avatars.com/api/?name=User&background=dc2626&color=fff" id="profile-avatar" alt="Profile">
                 <span id="display-username" class="profile-name hide-on-collapse">User</span>
             </div>
             <div class="profile-dropdown hide-on-collapse" id="profileDropdown">
@@ -49,15 +39,14 @@
         </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="main-content">
         <header class="top-nav">
             <div style="display:flex; align-items:center; gap: 16px;">
                 <h1 id="current-list-title" data-i18n="my_collections">My Collections</h1>
             </div>
             <div class="nav-actions">
-                <div class="custom-select-wrapper dark-arrow-wrapper">
-                    <select class="lang-select nav-btn dark-arrow-select" onchange="changeLang(this.value)">
+                <div class="custom-select-wrapper">
+                    <select class="lang-select nav-btn" onchange="changeLang(this.value)">
                         <option value="en">🇬🇧 EN</option>
                         <option value="id">🇮🇩 ID</option>
                     </select>
@@ -69,7 +58,6 @@
             <button class="primary-btn" onclick="openCollectionModal()" style="width: auto;" data-i18n="add_collection">+ Add Collection</button>
         </div>
 
-        <!-- Render Area Dynamic Grid Photo Collage -->
         <div id="board-content" class="board-content">
             <!-- Dynamically populated Collections -->
         </div>
@@ -80,7 +68,7 @@
         <div class="modal-content" style="max-width: 400px;">
             <div class="modal-header">
                 <h3 id="collectionModalTitle" data-i18n="add_collection">Add Collection</h3>
-                <span class="close-btn" onclick="closeModal('collectionModal')">&times;</span>
+                <span class="close-btn" onclick="UI.closeModal('collectionModal')">&times;</span>
             </div>
             <div class="modal-body">
                 <div class="input-group">
@@ -94,17 +82,17 @@
         </div>
     </div>
 
-    <!-- Modal Form (My Account) -->
+    <!-- Modal Form (My Account) remains identical to earlier code structure -->
+    <!-- (Included fully for completeness) -->
     <div id="accountModal" class="modal-overlay">
-        <!-- Kode Modal Akun tetap utuh -->
         <div class="modal-content">
             <div class="modal-header">
                 <h3 data-i18n="my_account">My Account</h3>
-                <span class="close-btn" onclick="closeModal('accountModal')">&times;</span>
+                <span class="close-btn" onclick="UI.closeModal('accountModal')">&times;</span>
             </div>
             <div class="modal-body">
                 <div class="profile-upload-section" style="text-align:center; margin-bottom: 24px;">
-                    <img id="accPreviewPic" src="https://ui-avatars.com/api/?name=User&background=f97316&color=fff" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin-bottom:12px; border: 2px solid var(--border-color);">
+                    <img id="accPreviewPic" src="https://ui-avatars.com/api/?name=User&background=dc2626&color=fff" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin-bottom:12px; border: 2px solid var(--border-color);">
                     <input type="file" id="accProfilePhoto" accept="image/*" style="display:none;" onchange="UI.previewImage(event, 'accPreviewPic')">
                     <br>
                     <button class="secondary-btn" onclick="document.getElementById('accProfilePhoto').click()" style="padding:8px 16px; font-size:13px; width:auto;" data-i18n="upload_device">Upload from Devices</button>

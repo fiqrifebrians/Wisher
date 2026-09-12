@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wisher - Your Personal Wishlist</title>
-    <!-- Favicon Configuration -->
     <link rel="icon" href="assets/mini-logo.png">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,11 +11,9 @@
 <body class="landing-body">
     <nav class="navbar main-navbar">
         <div class="brand">
-            <!-- Penyelarasan Vertikal & Tanda Titik Putih Bersih -->
             <h2 class="brand-text">Wisher<span class="dot highlight-dot">.</span></h2>
         </div>
         <div class="nav-actions">
-            <!-- Penyelarasan Estetika Language & Login Button -->
             <div class="custom-select-wrapper">
                 <select class="lang-select nav-btn" onchange="changeLang(this.value)">
                     <option value="en">🇬🇧 EN</option>
@@ -34,16 +31,15 @@
         </div>
         <div class="hero-visual">
             <div class="mockup-card">
-                <!-- Re-link Aset Unsplash Valid Berkualitas -->
-                <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&q=80" alt="Tech" class="mockup-img">
+                <!-- Aset Vektor Tas Belanja & Sepatu Modern -->
+                <img src="https://cdn-icons-png.flaticon.com/512/2742/2742698.png" alt="Shopping Bag Vector" class="mockup-img">
                 <div class="mockup-text">
                     <div class="line short"></div>
                     <div class="line long"></div>
                 </div>
             </div>
             <div class="mockup-card float">
-                <!-- Re-link Aset Unsplash Valid Berkualitas -->
-                <img src="https://images.unsplash.com/photo-1507925922893-873d0a44de21?w=400&q=80" alt="Setup" class="mockup-img">
+                <img src="https://cdn-icons-png.flaticon.com/512/2589/2589903.png" alt="Shoes Vector" class="mockup-img">
                 <div class="mockup-text">
                     <div class="line short"></div>
                     <div class="line long"></div>
@@ -56,32 +52,14 @@
     <script src="js/ui-handler.js"></script>
     <script>
         const i18nLanding = {
-            en: {
-                login: "Log In",
-                hero_title: "Your Personal Wishlist, <br><span class='highlight'>Simplified.</span>",
-                add_wishlist: "Add Wishlist"
-            },
-            id: {
-                login: "Masuk",
-                hero_title: "Wishlist Personal Anda, <br><span class='highlight'>Lebih Mudah.</span>",
-                add_wishlist: "Tambah Wishlist"
-            }
+            en: { login: "Log In", hero_title: "Your Personal Wishlist, <br><span class='highlight'>Simplified.</span>", add_wishlist: "Add Wishlist" },
+            id: { login: "Masuk", hero_title: "Wishlist Personal Anda, <br><span class='highlight'>Lebih Mudah.</span>", add_wishlist: "Tambah Wishlist" }
         };
-
-        function changeLang(lang) {
-            UI.changeLang(lang, i18nLanding);
-        }
-
-        window.onload = () => {
-            UI.changeLang(Storage.getLang(), i18nLanding);
-        };
-
+        function changeLang(lang) { UI.changeLang(lang, i18nLanding); }
+        window.onload = () => { UI.changeLang(Storage.getLang(), i18nLanding); };
         function handleCta() {
-            if (Storage.isLoggedIn()) {
-                window.location.href = 'dashboard.html';
-            } else {
-                window.location.href = 'auth.html';
-            }
+            if (Storage.isLoggedIn()) { window.location.href = 'dashboard.html'; } 
+            else { window.location.href = 'auth.html'; }
         }
     </script>
 </body>

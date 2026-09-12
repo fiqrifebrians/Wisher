@@ -3,8 +3,8 @@ if (!Storage.isLoggedIn()) { window.location.href = 'index.html'; }
 const currentUser = Storage.getCurrentUser();
 let collections = Storage.getCollections();
 let editingCollectionId = null;
+let draggedColId = null; // Menyimpan status drag dua arah
 
-// Kamus Dashboard
 const i18nDash = {
     en: {
         my_collections: "My Collections", add_collection: "+ Add Collection",
@@ -28,7 +28,6 @@ const i18nDash = {
 
 const ICON_EDIT = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
 const ICON_DELETE = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
-const ICON_CHEVRON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
 
 window.onload = () => {
     document.getElementById('display-username').innerText = currentUser;
@@ -51,16 +50,40 @@ function saveData() {
 }
 
 function toggleSidebar() { UI.toggleSidebar(); }
-function toggleProfileMenu() { UI.toggleProfileMenu(); }
-function closeModal(id) { UI.closeModal(id); }
 
-// Toggle Dropdown List Item pada Sidebar
-function toggleColDropdown(colId) {
-    const ul = document.getElementById(`item-list-${colId}`);
-    if (ul) ul.classList.toggle('expanded');
+// --- TWO-WAY DRAG AND DROP SINKRONISASI ---
+function handleDragStartCol(e, colId) {
+    draggedColId = colId;
+    e.dataTransfer.effectAllowed = 'move';
+    setTimeout(() => e.target.classList.add('dragging'), 0);
+}
+function handleDragOverCol(e) {
+    e.preventDefault();
+    e.currentTarget.classList.add('drag-over');
+}
+function handleDragLeaveCol(e) {
+    e.currentTarget.classList.remove('drag-over');
+}
+function handleDropCol(e, targetColId) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+    if (!draggedColId || draggedColId === targetColId) return;
+
+    const draggedIndex = collections.findIndex(c => c.id === draggedColId);
+    const targetIndex = collections.findIndex(c => c.id === targetColId);
+
+    const [movedCol] = collections.splice(draggedIndex, 1);
+    collections.splice(targetIndex, 0, movedCol);
+
+    saveData(); // Save & Sync Render
+}
+function handleDragEndCol(e) {
+    e.target.classList.remove('dragging');
+    draggedColId = null;
+    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
 }
 
-// Render Sidebar: Koleksi -> Item Expandable
+// Render Sidebar dengan D&D
 function renderSidebar() {
     const listContainer = document.getElementById('sidebar-collections');
     listContainer.innerHTML = '';
@@ -68,6 +91,12 @@ function renderSidebar() {
     collections.forEach(col => {
         const li = document.createElement('li');
         li.className = 'col-item-wrapper';
+        li.setAttribute('draggable', 'true');
+        li.ondragstart = (e) => handleDragStartCol(e, col.id);
+        li.ondragover = handleDragOverCol;
+        li.ondragleave = handleDragLeaveCol;
+        li.ondrop = (e) => handleDropCol(e, col.id);
+        li.ondragend = handleDragEndCol;
         
         const header = document.createElement('div');
         header.className = `col-header`;
@@ -75,32 +104,16 @@ function renderSidebar() {
             <span class="hide-on-collapse" style="flex:1;" onclick="window.location.href='collection.html?id=${col.id}'">${col.name}</span>
             <span class="show-on-collapse" style="display:none;" onclick="window.location.href='collection.html?id=${col.id}'" title="${col.name}">${col.name.charAt(0)}</span>
             <div class="action-icons hide-on-collapse">
-                <button class="icon-btn" onclick="toggleColDropdown('${col.id}')" title="Expand">${ICON_CHEVRON}</button>
                 <button class="icon-btn" onclick="openCollectionModal('${col.id}')" title="Edit">${ICON_EDIT}</button>
                 <button class="icon-btn delete" onclick="deleteCollection('${col.id}')" title="Delete">${ICON_DELETE}</button>
             </div>
         `;
         li.appendChild(header);
-
-        // Sub-list untuk item di sidebar
-        if (col.items && col.items.length > 0) {
-            const ul = document.createElement('ul');
-            ul.id = `item-list-${col.id}`;
-            ul.className = `wl-list hide-on-collapse`;
-            col.items.forEach(item => {
-                const itemLi = document.createElement('li');
-                itemLi.className = `wl-item`;
-                itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${item.name}">- ${item.name}</span>`;
-                ul.appendChild(itemLi);
-            });
-            li.appendChild(ul);
-        }
-
         listContainer.appendChild(li);
     });
 }
 
-// Render Konten Dashboard Utama & Collage Gambar
+// Render Konten Dashboard dengan Collage & D&D
 function renderMainContent() {
     const content = document.getElementById('board-content');
     const lang = Storage.getLang();
@@ -114,10 +127,10 @@ function renderMainContent() {
     collections.forEach(col => {
         const itemCount = col.items ? col.items.length : 0;
         
-        // Logika Grid Collage Foto
+        // Logika Dynamic Photo Collage Grid Square
         let collageHtml = `<div class="collection-card-collage collage-${Math.min(itemCount, 4)}">`;
         if (itemCount === 0) {
-            collageHtml += `<div class="collage-img" style="background:var(--border-color);"></div>`;
+            collageHtml += `<img src="${Storage.FALLBACK_IMAGE}" class="collage-img" alt="Empty" style="padding: 20px;">`;
         } else {
             const displayItems = col.items.slice(0, 4);
             displayItems.forEach((item, idx) => {
@@ -126,8 +139,15 @@ function renderMainContent() {
         }
         collageHtml += `</div>`;
 
+        // Card dengan D&D
         html += `
-            <div class="collection-card" onclick="window.location.href='collection.html?id=${col.id}'">
+            <div class="collection-card" draggable="true" 
+                ondragstart="handleDragStartCol(event, '${col.id}')"
+                ondragover="handleDragOverCol(event)"
+                ondragleave="handleDragLeaveCol(event)"
+                ondrop="handleDropCol(event, '${col.id}')"
+                ondragend="handleDragEndCol(event)"
+                onclick="window.location.href='collection.html?id=${col.id}'">
                 <button class="edit-icon-card" onclick="editCollection(event, '${col.id}')">${ICON_EDIT}</button>
                 <button class="delete-icon-card" onclick="deleteCollectionMain(event, '${col.id}')">${ICON_DELETE}</button>
                 ${collageHtml}
@@ -142,15 +162,12 @@ function renderMainContent() {
 
 // --- LOGIKA HAPUS & MODAL COLLECTION ---
 function deleteCollection(id) {
-    if (confirm("Are you sure you want to delete this Collection permanently?")) {
+    if (confirm("Delete this Collection permanently?")) {
         collections = collections.filter(c => c.id !== id);
         saveData();
     }
 }
-function deleteCollectionMain(e, id) {
-    e.stopPropagation();
-    deleteCollection(id);
-}
+function deleteCollectionMain(e, id) { e.stopPropagation(); deleteCollection(id); }
 
 function openCollectionModal(id = null) {
     editingCollectionId = id;
@@ -167,10 +184,7 @@ function openCollectionModal(id = null) {
     }
 }
 
-function editCollection(e, id) {
-    e.stopPropagation();
-    openCollectionModal(id);
-}
+function editCollection(e, id) { e.stopPropagation(); openCollectionModal(id); }
 
 function saveCollection() {
     const name = document.getElementById('collectionName').value.trim();
@@ -183,10 +197,10 @@ function saveCollection() {
         collections.push({ id: 'col_' + Date.now(), name: name, items: [] });
     }
     saveData();
-    closeModal('collectionModal');
+    UI.closeModal('collectionModal');
 }
 
-// --- AKUN & PROFIL LOGIC ---
+// Akun Logika
 function openMyAccount() {
     const db = Storage.getUsers();
     const userObj = db.find(u => u.username === currentUser);
@@ -228,7 +242,6 @@ function saveAccount() {
         if (newPass !== confPass) { alert("Passwords do not match."); return; }
         db[userIndex].password = newPass;
     }
-    
     db[userIndex].email = document.getElementById('accEmail').value;
     
     const fileInput = document.getElementById('accProfilePhoto');
@@ -239,13 +252,13 @@ function saveAccount() {
             Storage.saveUsers(db);
             document.getElementById('profile-avatar').src = e.target.result;
             alert("Account updated successfully.");
-            closeModal('accountModal');
+            UI.closeModal('accountModal');
         }
         reader.readAsDataURL(fileInput.files[0]);
     } else {
         Storage.saveUsers(db);
         alert("Account updated successfully.");
-        closeModal('accountModal');
+        UI.closeModal('accountModal');
     }
 }
 function logout() { Storage.logout(); }

@@ -1,15 +1,15 @@
 /* --- VARIABLES & RESET --- */
 :root {
     --bg-white: #ffffff;
-    --bg-light: #fafafb;
-    --primary-red: #f97316; /* Shade Oranye Vibrant & Bersih */
-    --primary-red-hover: #ea580c;
+    --bg-light: #f8fafc;
+    --primary-red: #dc2626; /* Merah Cerah Modern (Primary Red) */
+    --primary-red-hover: #b91c1c;
     --text-dark: #0f172a;
     --text-gray: #64748b;
     --border-color: #e2e8f0;
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
     --shadow-md: 0 6px 12px -2px rgba(0,0,0,0.06);
-    --shadow-hover: 0 12px 20px -4px rgba(249, 115, 22, 0.2);
+    --shadow-hover: 0 12px 20px -4px rgba(220, 38, 38, 0.2);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -17,29 +17,25 @@
 
 body { background-color: var(--bg-light); color: var(--text-dark); display: flex; flex-direction: column; min-height: 100vh; }
 
-/* Menghilangkan garis bawah */
 button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decoration: none !important; }
 
-/* --- NAVBAR & LOGO RE-COLORING --- */
+/* --- NAVBAR & LOGO --- */
 .main-navbar {
     display: flex; justify-content: space-between; align-items: center;
     padding: 20px 40px; 
-    background: var(--primary-red);
-    border-bottom: none; box-shadow: var(--shadow-sm);
+    background: var(--bg-white);
+    border-bottom: 1px solid var(--border-color);
 }
 
-/* Penyelarasan Vertikal Logo Navbar */
-.brand { display: flex; align-items: center; margin: 0; }
-.main-navbar .brand-text { font-size: 24px; font-weight: 700; color: #000000 !important; display: flex; align-items: center; line-height: 1; margin: 0; }
-.main-navbar .brand-text .highlight-dot { 
-    color: #ffffff !important; /* Tanda titik menjadi Putih Bersih */
-    text-shadow: none; 
-}
+.brand { display: flex; align-items: center; margin: 0; margin-bottom: 32px; /* Perbaikan Spacing Sidebar Header */ }
+.main-navbar .brand { margin-bottom: 0; }
+.brand-text { font-size: 24px; font-weight: 700; color: var(--text-dark) !important; display: flex; align-items: center; line-height: 1; margin: 0; }
+.brand-text .highlight-dot { color: var(--primary-red) !important; text-shadow: none; }
+.brand-icon { display: flex; align-items: center; justify-content: center; margin: 0; line-height: 1; font-size: 24px; font-weight: 700;}
 
-/* Penyelarasan UI Button Navbar (Minimalis, Seragam, Estetik) */
+/* Penyelarasan UI Button Navbar (Teks Hitam Pekat) */
 .nav-actions { display: flex; align-items: center; gap: 12px; }
 
-/* Base class seragam untuk tombol Language dan Login di Navbar */
 .nav-btn {
     height: 38px;
     padding: 0 20px;
@@ -50,45 +46,27 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
     align-items: center;
     justify-content: center;
     transition: var(--transition);
-    background-color: var(--bg-white);
-    color: var(--primary-red);
-    border: 2px solid transparent;
+    background-color: var(--bg-light);
+    color: #000000 !important; /* Teks Hitam Pekat */
+    border: 1px solid var(--border-color);
     cursor: pointer;
     outline: none;
     box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
 }
 .nav-btn:hover {
-    background-color: transparent;
-    color: var(--bg-white);
-    border-color: var(--bg-white);
+    background-color: var(--bg-white);
+    border-color: var(--text-gray);
     transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: var(--shadow-sm);
 }
 
-/* Kustomisasi Arrow Dropdown Bahasa */
 .custom-select-wrapper { position: relative; display: inline-flex; }
 .lang-select { appearance: none; padding-right: 36px; }
 .custom-select-wrapper::after {
     content: '▼'; font-size: 10px; position: absolute; right: 14px; top: 50%;
     transform: translateY(-50%); pointer-events: none; 
-    color: var(--primary-red);
+    color: #000000;
     transition: var(--transition);
-}
-.custom-select-wrapper:hover::after { color: var(--bg-white); }
-
-/* Warna Arrow Dropdown Kondisional untuk halaman non-landing (Dark Arrow) */
-.dark-arrow-wrapper::after { color: #000000 !important; }
-.dark-arrow-select {
-    border: 1px solid var(--border-color) !important;
-    color: var(--text-dark) !important;
-    background-color: var(--bg-white) !important;
-}
-.dark-arrow-select:hover {
-    border-color: var(--text-gray) !important;
-    color: var(--text-dark) !important;
-    transform: none !important;
-    box-shadow: var(--shadow-sm) !important;
 }
 
 /* --- LANDING PAGE HERO --- */
@@ -102,13 +80,9 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 .mockup-card:hover { transform: rotate(0) scale(1.05); z-index: 4; }
 .mockup-card.float { z-index: 3; transform: rotate(5deg) translate(60px, 80px); }
 .mockup-card.float:hover { transform: rotate(0) scale(1.05) translate(60px, 80px); z-index: 4; }
-.mockup-img { width: 100%; height: 140px; border-radius: 8px; background: var(--border-color); object-fit: cover; }
-.mockup-text { margin-top: 16px; }
-.mockup-text .line { height: 12px; border-radius: 6px; background: var(--border-color); margin-bottom: 8px; }
-.mockup-text .line.short { width: 60%; }
-.mockup-text .line.long { width: 100%; }
+.mockup-img { width: 100%; aspect-ratio: 1 / 1; border-radius: 8px; background: var(--bg-light); object-fit: contain; padding: 12px; } /* Vector styling */
 
-/* --- BUTTONS AESTHETICS (TEMA MODERN) --- */
+/* --- BUTTONS AESTHETICS --- */
 .primary-btn, .secondary-btn {
     width: 100%; padding: 12px 24px; border-radius: 12px;
     font-weight: 600; cursor: pointer; transition: var(--transition);
@@ -120,14 +94,14 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 .secondary-btn { background-color: var(--bg-white); color: var(--text-dark); border: 1px solid var(--border-color); }
 .secondary-btn:hover { border-color: var(--primary-red); color: var(--primary-red); box-shadow: var(--shadow-sm); }
 
-/* Auth & Input Styling */
+/* --- INPUT STYLING --- */
 .input-group { margin-bottom: 16px; width: 100%; }
 .input-group label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; color: var(--text-dark); }
 .input-group input, .input-group select {
     width: 100%; padding: 12px; border: 1px solid var(--border-color);
     border-radius: 12px; outline: none; transition: var(--transition); background: var(--bg-white); font-size: 14px;
 }
-.input-group input:focus, .input-group select:focus { border-color: var(--primary-red); box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1); }
+.input-group input:focus, .input-group select:focus { border-color: var(--primary-red); box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1); }
 .input-row { display: flex; gap: 12px; align-items: flex-end; }
 .password-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
 .password-wrapper input { padding-right: 40px; width: 100%; }
@@ -135,19 +109,6 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 .toggle-password:hover { color: var(--primary-red); }
 .error-text { display: none; color: var(--primary-red); font-size: 12px; margin-top: 6px; }
 .error-text.active { display: block; animation: fadeIn 0.3s ease; }
-
-/* Auth Container */
-.auth-body { display: flex; justify-content: center; align-items: center; height: 100vh; position: relative; }
-.lang-switcher-auth { position: absolute; top: 24px; right: 24px; }
-.auth-container { background: var(--bg-white); padding: 40px; border-radius: 16px; box-shadow: var(--shadow-md); width: 100%; max-width: 400px; position: relative; }
-.auth-form { display: none; }
-.auth-form.active { display: block; animation: fadeIn 0.4s ease forwards; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.auth-header { text-align: center; margin-bottom: 24px; }
-.auth-header h2 { font-size: 24px; color: var(--text-dark); }
-.toggle-text { text-align: center; margin-top: 24px; font-size: 14px; color: var(--text-gray); }
-.action-link { color: var(--primary-red); font-weight: 600; cursor: pointer; transition: var(--transition); }
-.action-link:hover { color: var(--primary-red-hover); }
 
 /* --- DASHBOARD LAYOUT & COLLAPSIBLE SIDEBAR --- */
 .dashboard-body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
@@ -160,6 +121,7 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 .sidebar.collapsed { width: 72px; padding: 24px 16px; }
 .sidebar.collapsed .hide-on-collapse { display: none !important; }
 .sidebar.collapsed .show-on-collapse { display: block !important; text-align: center; }
+.sidebar-actions { margin-bottom: 32px; } /* Perbaikan Spacing Sidebar */
 
 .sidebar-toggle-btn {
     position: absolute; right: -14px; top: 30px; width: 28px; height: 28px; border-radius: 50%;
@@ -170,10 +132,7 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 .sidebar-toggle-btn:hover { color: var(--primary-red); border-color: var(--primary-red); }
 .sidebar.collapsed .sidebar-toggle-btn { transform: rotate(180deg); }
 
-.brand-icon { display: flex; align-items: center; justify-content: center; margin: 0; line-height: 1;}
 .flex-grow { flex: 1; overflow-y: auto; }
-
-/* Sidebar Navigation Architecture (Extendable Dropdown) */
 .menu-label { font-size: 12px; color: var(--text-gray); font-weight: 600; margin-bottom: 12px; letter-spacing: 0.5px; }
 #sidebar-collections { list-style: none; }
 .col-item-wrapper { margin-bottom: 8px; }
@@ -182,9 +141,13 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
     border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--text-dark); transition: var(--transition);
 }
 .col-header:hover { background: var(--bg-light); }
-.col-header.active { background: rgba(249, 115, 22, 0.08); color: var(--primary-red); }
+.col-header.active { background: rgba(220, 38, 38, 0.08); color: var(--primary-red); }
 
-/* Minimalist Icon-based Actions Sidebar */
+/* Drag and Drop Visuals */
+.dragging { opacity: 0.5; transform: scale(0.98); }
+.drag-over { border: 2px dashed var(--primary-red) !important; background-color: rgba(220, 38, 38, 0.05) !important; }
+
+/* Minimalist Icon Actions */
 .action-icons { display: flex; gap: 4px; opacity: 0; transition: var(--transition); }
 .col-header:hover .action-icons { opacity: 1; }
 .icon-btn {
@@ -194,15 +157,6 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 }
 .icon-btn:hover { background: var(--bg-white); color: var(--primary-red); box-shadow: var(--shadow-sm); }
 .icon-btn.delete:hover { color: #dc2626; background: #fee2e2; }
-
-/* Dropdown list sub-items */
-.wl-list { list-style: none; padding-left: 24px; margin-top: 4px; display: none; }
-.wl-list.expanded { display: block; animation: fadeIn 0.3s ease; }
-.wl-item {
-    display: flex; justify-content: space-between; align-items: center; padding: 8px 12px;
-    border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text-gray); transition: var(--transition);
-}
-.wl-item:hover { background: var(--bg-light); color: var(--text-dark); }
 
 /* Sidebar Profile */
 .sidebar-profile { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-color); position: relative; }
@@ -231,57 +185,49 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
     width: 100%; padding: 40px; border: 2px dashed var(--text-gray); background: transparent; border-radius: 16px; text-align: center;
     color: var(--text-dark); font-weight: 600; cursor: pointer; opacity: 0.5; transition: var(--transition);
 }
-.empty-suggestion-50:hover { opacity: 1; border-color: var(--primary-red); color: var(--primary-red); background: rgba(249, 115, 22, 0.05); }
+.empty-suggestion-50:hover { opacity: 1; border-color: var(--primary-red); color: var(--primary-red); background: rgba(220, 38, 38, 0.05); }
 
 /* Dynamic Photo Collage Dashboard Grid */
 .collections-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
 .collection-card {
     background: var(--bg-white); border-radius: 16px; padding: 24px;
     box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);
-    cursor: pointer; transition: var(--transition); display: flex;
+    cursor: grab; transition: var(--transition); display: flex;
     flex-direction: column; text-align: center; position: relative;
 }
+.collection-card:active { cursor: grabbing; }
 .collection-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--primary-red); }
 .collection-card h3 { font-size: 18px; color: var(--text-dark); margin: 0 0 4px 0; }
 .collection-card p { font-size: 13px; color: var(--text-gray); margin: 0; font-weight: 500;}
 
-/* Dynamic Collage Grid Logic */
+/* Dynamic Collage Grid Logic (1:1 Ratio handled inside grid) */
 .collection-card-collage {
-    width: 100%; height: 160px; border-radius: 12px; overflow: hidden;
-    display: grid; gap: 2px; margin-bottom: 16px; background: var(--border-color);
+    width: 100%; aspect-ratio: 1 / 1; border-radius: 12px; overflow: hidden;
+    display: grid; gap: 2px; margin-bottom: 16px; background: var(--bg-light);
 }
 .collage-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
 .collage-2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
 .collage-3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
 .collage-3 .img-0 { grid-row: span 2; }
 .collage-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-.collage-img { width: 100%; height: 100%; object-fit: cover; }
+.collage-img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 1 / 1; }
 
 /* Items Grid (Collection) */
 .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; }
-.item-card { background: var(--bg-white); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-sm); transition: var(--transition); border: 1px solid var(--border-color); position: relative; }
-.item-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: rgba(249, 115, 22, 0.3); }
-.item-img { height: 180px; background-size: cover; background-position: center; background-color: var(--border-color); }
+.item-card { background: var(--bg-white); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-sm); transition: var(--transition); border: 1px solid var(--border-color); position: relative; cursor: grab;}
+.item-card:active { cursor: grabbing; }
+.item-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: rgba(220, 38, 38, 0.3); }
+.item-img { width: 100%; aspect-ratio: 1 / 1; background-size: cover; background-position: center; background-color: var(--bg-light); object-fit: cover; } /* Rasio 1:1 Ketat */
 .item-details { padding: 20px; }
 .item-details h4 { font-size: 16px; margin-bottom: 8px; color: var(--text-dark); padding-right: 20px;}
 .item-price { font-weight: 700; color: var(--primary-red); margin-bottom: 16px; }
 .item-link { display: inline-block; font-size: 14px; color: var(--text-gray); font-weight: 600; transition: var(--transition); }
 .item-link:hover { color: var(--primary-red); }
 
-/* Minimalist Edit/Delete Icon on Card */
-.edit-icon-card {
-    position: absolute; top: 12px; right: 12px; width: 32px; height: 32px;
-    background: var(--bg-white); border: 1px solid var(--border-color); border-radius: 50%;
-    display: flex; justify-content: center; align-items: center; cursor: pointer;
-    color: var(--text-gray); transition: var(--transition); z-index: 10;
-}
+/* Edit/Delete Icon on Card */
+.edit-icon-card { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; background: var(--bg-white); border: 1px solid var(--border-color); border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-gray); transition: var(--transition); z-index: 10; }
 .edit-icon-card:hover { color: var(--primary-red); border-color: var(--primary-red); box-shadow: var(--shadow-sm); transform: scale(1.1); }
-.delete-icon-card {
-    position: absolute; top: 12px; right: 52px; width: 32px; height: 32px;
-    background: var(--bg-white); border: 1px solid var(--border-color); border-radius: 50%;
-    display: flex; justify-content: center; align-items: center; cursor: pointer;
-    color: var(--text-gray); transition: var(--transition); z-index: 10;
-}
+.delete-icon-card { position: absolute; top: 12px; right: 52px; width: 32px; height: 32px; background: var(--bg-white); border: 1px solid var(--border-color); border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-gray); transition: var(--transition); z-index: 10; }
 .delete-icon-card:hover { color: #dc2626; border-color: #dc2626; box-shadow: var(--shadow-sm); transform: scale(1.1); background: #fee2e2; }
 
 /* --- MODALS --- */
@@ -299,4 +245,4 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 .modal-body { padding: 24px; max-height: 65vh; overflow-y: auto; }
 .info-text { font-size: 13px; color: var(--text-gray); margin-bottom: 20px; line-height: 1.5; }
 .modal-footer { padding: 20px 24px; border-top: 1px solid var(--border-color); }
-.image-preview { width: 100%; height: 120px; object-fit: cover; border-radius: 12px; margin-bottom: 16px; border: 1px solid var(--border-color); }
+.image-preview { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 12px; margin-bottom: 16px; border: 1px solid var(--border-color); background: var(--bg-light); }

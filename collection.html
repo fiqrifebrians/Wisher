@@ -10,17 +10,29 @@
 </head>
 <body class="dashboard-body">
     
-    <aside class="sidebar collapsed" id="sidebar" style="width: 72px;">
-        <div class="brand">
-            <!-- Tampilan Inisial Collapsed -->
-            <h2 class="brand-icon show-on-collapse" style="color:#000000; margin:0;">W<span class="dot" style="color:var(--primary-red) !important;">.</span></h2>
+    <!-- Sidebar Sinkronisasi Penuh di Halaman Collection -->
+    <aside class="sidebar collapsed" id="sidebar">
+        <div class="sidebar-toggle-btn" onclick="toggleSidebar()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
         </div>
-        <div class="flex-grow"></div>
+        <div class="brand">
+            <h2 class="brand-text hide-on-collapse">Wisher<span class="dot highlight-dot">.</span></h2>
+            <h2 class="brand-icon show-on-collapse">W<span class="dot highlight-dot">.</span></h2>
+        </div>
+        
+        <div class="menu flex-grow hide-on-collapse" style="margin-top:20px;">
+            <p class="menu-label" data-i18n="my_collections">My Collections</p>
+            <ul id="sidebar-collections">
+                <!-- Dynamically populated via JS for easy navigation -->
+            </ul>
+        </div>
+        
         <div class="sidebar-profile">
-            <div class="profile-trigger" onclick="toggleProfileMenu()">
-                <img src="https://ui-avatars.com/api/?name=User&background=f97316&color=fff" id="profile-avatar" alt="Profile">
+            <div class="profile-trigger" onclick="UI.toggleProfileMenu()">
+                <img src="https://ui-avatars.com/api/?name=User&background=dc2626&color=fff" id="profile-avatar" alt="Profile">
+                <span id="display-username" class="profile-name hide-on-collapse">User</span>
             </div>
-            <div class="profile-dropdown" id="profileDropdown">
+            <div class="profile-dropdown hide-on-collapse" id="profileDropdown">
                 <button onclick="openMyAccount()" data-i18n="my_account">My Account</button>
                 <button class="text-red" onclick="logout()" data-i18n="sign_out">Sign Out</button>
             </div>
@@ -30,12 +42,11 @@
     <main class="main-content">
         <header class="top-nav">
             <div style="display:flex; justify-content:space-between; align-items:center; width: 100%;">
-                <!-- Teks default dikosongkan agar tersinkronisasi dinamis via JS -->
-                <h1 id="current-collection-title"></h1>
+                <h1 id="current-collection-title">Loading Collection...</h1>
                 
                 <div style="display:flex; align-items:center; gap: 16px;">
-                    <div class="custom-select-wrapper dark-arrow-wrapper">
-                        <select class="lang-select nav-btn dark-arrow-select" onchange="changeLang(this.value)">
+                    <div class="custom-select-wrapper">
+                        <select class="lang-select nav-btn" onchange="changeLang(this.value)">
                             <option value="en">🇬🇧 EN</option>
                             <option value="id">🇮🇩 ID</option>
                         </select>
@@ -59,7 +70,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 id="itemModalTitle" data-i18n="add_item">Add Item</h3>
-                <span class="close-btn" onclick="closeModal('itemModal')">&times;</span>
+                <span class="close-btn" onclick="UI.closeModal('itemModal')">&times;</span>
             </div>
             <div class="modal-body">
                 <p class="info-text" data-i18n="item_info">Paste a link to auto-generate, or fill manually.</p>
@@ -82,9 +93,9 @@
                         <button class="secondary-btn" onclick="document.getElementById('itemImageFile').click()" style="flex: 0 0 auto; width: auto; font-size:12px;" data-i18n="from_devices">From Devices</button>
                     </div>
                 </div>
-                <img id="imagePreview" class="image-preview" src="" alt="Preview" style="display:none;">
+                <!-- Pratinjau 1:1 -->
+                <img id="imagePreview" class="image-preview" src="" alt="Preview" style="display:none; width: 120px; border-radius: 12px; margin: 0 auto 16px; display: block; object-fit: cover; aspect-ratio: 1/1;">
 
-                <!-- Layout Harga & Ekspansi Mata Uang Sesuai Instruksi -->
                 <div class="input-row">
                     <div class="input-group" style="flex: 0 0 110px;">
                         <label data-i18n="currency">Currency</label>
@@ -112,15 +123,15 @@
 
     <!-- Modal Form (My Account) -->
     <div id="accountModal" class="modal-overlay">
-        <!-- Kode Modal Akun tetap utuh -->
+        <!-- Kode Modal Akun tetap utuh sama persis seperti dashboard -->
         <div class="modal-content">
             <div class="modal-header">
                 <h3 data-i18n="my_account">My Account</h3>
-                <span class="close-btn" onclick="closeModal('accountModal')">&times;</span>
+                <span class="close-btn" onclick="UI.closeModal('accountModal')">&times;</span>
             </div>
             <div class="modal-body">
                 <div class="profile-upload-section" style="text-align:center; margin-bottom: 24px;">
-                    <img id="accPreviewPic" src="https://ui-avatars.com/api/?name=User&background=f97316&color=fff" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin-bottom:12px; border: 2px solid var(--border-color);">
+                    <img id="accPreviewPic" src="https://ui-avatars.com/api/?name=User&background=dc2626&color=fff" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin-bottom:12px; border: 2px solid var(--border-color);">
                     <input type="file" id="accProfilePhoto" accept="image/*" style="display:none;" onchange="UI.previewImage(event, 'accPreviewPic')">
                     <br>
                     <button class="secondary-btn" onclick="document.getElementById('accProfilePhoto').click()" style="padding:8px 16px; font-size:13px; width:auto;" data-i18n="upload_device">Upload from Devices</button>
