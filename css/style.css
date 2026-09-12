@@ -25,6 +25,13 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
     padding: 20px 40px; 
     background: var(--bg-white);
     border-bottom: 1px solid var(--border-color);
+    
+    /* Mencegah Navbar hilang/tertekan di Mobile dan membuatnya selalu melekat di atas */
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
 }
 
 .brand { display: flex; align-items: center; margin: 0; margin-bottom: 32px; }
@@ -179,8 +186,8 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 
 /* Main Content */
 .main-content { flex: 1; display: flex; flex-direction: column; background-color: var(--bg-light); overflow-y: auto; transition: width 0.3s ease; }
-.top-nav { display: flex; justify-content: space-between; align-items: center; padding: 24px 40px; background: var(--bg-light); }
-.board-actions { padding: 0 40px; display: flex; gap: 12px; margin-bottom: 24px; align-items: center; }
+.top-nav { display: flex; justify-content: space-between; align-items: center; padding: 24px 40px; background: var(--bg-light); flex-shrink: 0; }
+.board-actions { padding: 0 40px; display: flex; gap: 12px; margin-bottom: 24px; align-items: center; flex-shrink: 0; }
 .board-content { padding: 0 40px 40px; }
 
 /* 50% Opacity Empty State */
@@ -189,6 +196,7 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
     color: var(--text-dark); font-weight: 600; cursor: pointer; opacity: 0.5; transition: var(--transition);
 }
 .empty-suggestion-50:hover { opacity: 1; border-color: var(--primary-red); color: var(--primary-red); background: rgba(220, 38, 38, 0.05); }
+
 
 /* --- CARD AESTHETICS & INLINE FOOTER ALIGNMENTS --- */
 
@@ -220,7 +228,7 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 .item-link { display: inline-block; font-size: 14px; color: var(--text-gray); font-weight: 600; transition: var(--transition); }
 .item-link:hover { color: var(--primary-red); }
 
-/* Tombol Edit/Delete Inline (Sejajar dengan Judul Koleksi / Link Item) */
+/* Tombol Edit/Delete Inline */
 .card-footer-inline {
     display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: auto;
 }
@@ -266,17 +274,24 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 .sidebar-overlay.active { display: block; }
 
 @media (max-width: 768px) {
-    /* Landing & Auth Mobile */
-    .main-navbar { padding: 16px 20px; }
-    .hero { flex-direction: column; text-align: center; padding: 40px 20px; }
-    .hero-content { display: flex; flex-direction: column; align-items: center; }
+    /* Navbar Mobile Landing Page */
+    .main-navbar { padding: 16px 20px; flex-wrap: nowrap; flex-shrink: 0; width: 100%; }
+    .main-navbar .brand-text { font-size: 20px !important; }
+    .nav-actions { gap: 8px; }
+    .nav-btn { height: 32px; padding: 0 12px; font-size: 13px; }
     
-    /* Perbaikan Jarak Antar Gambar Landing Page Mobile */
-    .hero-visual { margin-top: 16px; height: 300px; } 
-    .mockup-card { width: 180px; }
-    .mockup-card.float { transform: translate(40px, 60px); }
-    .mockup-card.float:hover { transform: scale(1.05) translate(40px, 60px); }
+    /* Hero Mobile (Jarak Lebih Dekat) */
+    .hero { flex-direction: column; text-align: center; padding: 32px 20px; gap: 16px; justify-content: flex-start; flex-shrink: 0;}
+    .hero-content { display: flex; flex-direction: column; align-items: center; width: 100%; gap: 0;}
+    .hero h1 { font-size: 32px; margin-bottom: 16px; line-height: 1.2; }
     
+    /* Jarak button dan gambar didekatkan */
+    .hero-visual { margin-top: 12px; height: 250px; width: 100%; display: flex; justify-content: center; align-items: flex-start; }
+    .mockup-card { width: 150px; padding: 8px; }
+    .mockup-card.float { transform: translate(30px, 40px); }
+    .mockup-card.float:hover { transform: scale(1.05) translate(30px, 40px); }
+    
+    /* Auth Mobile */
     .auth-container { padding: 24px; margin: 16px; width: auto; max-width: calc(100% - 32px); }
     .lang-switcher-auth { top: 16px; right: 16px; }
 
@@ -290,11 +305,11 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
     .sidebar-toggle-btn { display: none; }
     .mobile-hamburger { display: block; }
 
-    .top-nav { padding: 16px 20px; }
-    .board-actions { padding: 0 20px; }
+    .top-nav { padding: 16px 20px; flex-shrink: 0; }
+    .board-actions { padding: 0 20px; flex-shrink: 0; }
     .board-content { padding: 0 20px 40px; }
     
-    /* Layout Cards 2 per row di mobile kecil */
+    /* Layout Cards di layar kecil */
     .collections-grid, .items-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
     .item-img { height: 140px; }
     .collection-card-collage { height: 140px; }
