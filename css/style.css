@@ -33,7 +33,7 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 .brand-text .highlight-dot { color: var(--primary-red) !important; text-shadow: none; }
 .brand-icon { display: flex; align-items: center; justify-content: center; margin: 0; line-height: 1; font-size: 24px; font-weight: 700;}
 
-/* Penyelarasan UI Button Navbar */
+/* Penyelarasan UI Button Navbar (Teks Hitam Pekat) */
 .nav-actions { display: flex; align-items: center; gap: 12px; }
 
 .nav-btn {
@@ -90,6 +90,19 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 .toggle-password:hover { color: var(--primary-red); }
 .error-text { display: none; color: var(--primary-red); font-size: 12px; margin-top: 6px; }
 .error-text.active { display: block; animation: fadeIn 0.3s ease; }
+
+/* --- AUTH PAGES STYLING (MEMPERBAIKI BUG TAMPILAN FULL-WIDTH) --- */
+.auth-body { display: flex; justify-content: center; align-items: center; height: 100vh; position: relative; background-color: var(--bg-light); }
+.lang-switcher-auth { position: absolute; top: 24px; right: 24px; z-index: 10; }
+.auth-container { background: var(--bg-white); padding: 40px; border-radius: 16px; box-shadow: var(--shadow-md); width: 100%; max-width: 400px; position: relative; }
+.auth-form { display: none; }
+.auth-form.active { display: block; animation: fadeIn 0.4s ease forwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.auth-header { text-align: center; margin-bottom: 24px; }
+.auth-header h2 { font-size: 24px; color: var(--text-dark); }
+.toggle-text { text-align: center; margin-top: 24px; font-size: 14px; color: var(--text-gray); }
+.action-link { color: var(--primary-red); font-weight: 600; cursor: pointer; transition: var(--transition); }
+.action-link:hover { color: var(--primary-red-hover); }
 
 /* --- DASHBOARD LAYOUT & COLLAPSIBLE SIDEBAR --- */
 .dashboard-body { display: flex; flex-direction: row; height: 100vh; overflow: hidden; position: relative; }
@@ -256,6 +269,7 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
     .mockup-card.float:hover { transform: scale(1.05) translate(40px, 60px); }
     
     .auth-container { padding: 24px; margin: 16px; width: auto; max-width: calc(100% - 32px); }
+    .lang-switcher-auth { top: 16px; right: 16px; }
 
     /* Dashboard Mobile */
     .dashboard-body { flex-direction: column; }
@@ -264,7 +278,7 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
         transform: translateX(-100%); width: 280px !important; 
     }
     .sidebar.mobile-open { transform: translateX(0); }
-    .sidebar-toggle-btn { display: none; } /* Hide desktop arrow toggle on mobile */
+    .sidebar-toggle-btn { display: none; }
     .mobile-hamburger { display: block; }
 
     .top-nav { padding: 16px 20px; }
