@@ -190,7 +190,6 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 }
 .empty-suggestion-50:hover { opacity: 1; border-color: var(--primary-red); color: var(--primary-red); background: rgba(220, 38, 38, 0.05); }
 
-
 /* --- CARD AESTHETICS & INLINE FOOTER ALIGNMENTS --- */
 
 .collections-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
@@ -271,7 +270,9 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
     .main-navbar { padding: 16px 20px; }
     .hero { flex-direction: column; text-align: center; padding: 40px 20px; }
     .hero-content { display: flex; flex-direction: column; align-items: center; }
-    .hero-visual { margin-top: 40px; height: 300px; }
+    
+    /* Perbaikan Jarak Antar Gambar Landing Page Mobile */
+    .hero-visual { margin-top: 16px; height: 300px; } 
     .mockup-card { width: 180px; }
     .mockup-card.float { transform: translate(40px, 60px); }
     .mockup-card.float:hover { transform: scale(1.05) translate(40px, 60px); }
