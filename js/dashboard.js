@@ -73,11 +73,10 @@ function handleDropCol(e, targetColId) {
     const draggedIndex = collections.findIndex(c => c.id === draggedColId);
     const targetIndex = collections.findIndex(c => c.id === targetColId);
 
-    // Swap / Move Logika
     const [movedCol] = collections.splice(draggedIndex, 1);
     collections.splice(targetIndex, 0, movedCol);
 
-    saveData(); // Sinkronisasi otomatis merefleksikan perubahan ke Sidebar juga!
+    saveData(); 
 }
 function handleDragEndCol(e) {
     e.target.classList.remove('dragging');
@@ -118,7 +117,8 @@ function renderSidebar() {
             col.items.forEach(item => {
                 const itemLi = document.createElement('li');
                 itemLi.className = `wl-item`;
-                itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">- ${item.name}</span>`;
+                // Menghilangkan tanda "-" di text
+                itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">${item.name}</span>`;
                 ul.appendChild(itemLi);
             });
             li.appendChild(ul);
@@ -143,17 +143,15 @@ function renderMainContent() {
         
         let collageHtml = `<div class="collection-card-collage collage-${Math.min(itemCount, 4)}">`;
         if (itemCount === 0) {
+            // Bersih tanpa atribut tag yang bocor
             collageHtml += `<img src="${Storage.FALLBACK_IMAGE}" class="collage-img" alt="Empty" style="padding: 24px; object-fit: contain;">`;
         } else {
             const displayItems = col.items.slice(0, 4);
             displayItems.forEach((item, idx) => {
-                // PERBAIKAN: Sanitasi data lama jika berisi SVG mentah yang merusak layout
                 let safeImageUrl = item.imageUrl;
                 if (!safeImageUrl || (safeImageUrl.includes('<svg') && safeImageUrl.includes('data:image'))) {
                     safeImageUrl = Storage.FALLBACK_IMAGE;
                 }
-                
-                // Pencegahan Sintaks Bocor pada alt string interpolasi
                 const safeName = item.name ? item.name.replace(/"/g, '&quot;') : 'Product';
                 collageHtml += `<img src="${safeImageUrl}" class="collage-img img-${idx}" alt="${safeName}">`;
             });

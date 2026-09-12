@@ -63,9 +63,7 @@ function saveData() {
     renderCollection();
 }
 
-function toggleProfileMenu() { UI.toggleProfileMenu(); }
 function toggleSidebar() { UI.toggleSidebar(); }
-function closeModal(id) { UI.closeModal(id); }
 
 function toggleColDropdown(colId) {
     const ul = document.getElementById(`item-list-${colId}`);
@@ -93,11 +91,13 @@ function renderSidebarNav() {
         if (col.items && col.items.length > 0) {
             const ul = document.createElement('ul');
             ul.id = `item-list-${col.id}`;
+            // Expand otomatis untuk daftar yang sedang aktif
             ul.className = `wl-list hide-on-collapse ${col.id === collectionId ? 'expanded' : ''}`; 
             col.items.forEach(item => {
                 const itemLi = document.createElement('li');
                 itemLi.className = `wl-item`;
-                itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">- ${item.name}</span>`;
+                // Menghilangkan tanda "-" di text
+                itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">${item.name}</span>`;
                 ul.appendChild(itemLi);
             });
             li.appendChild(ul);
@@ -106,7 +106,7 @@ function renderSidebarNav() {
     });
 }
 
-// --- LOGIKA FORM ITEM (CRUD & SYNC LINK) ---
+// --- LOGIKA FORM ITEM (CRUD & SYNC LINK ASYNC) ---
 let itemState = { isManualName: false, isManualImage: false, currentUrl: "", customImageData: null };
 
 const urlInput = document.getElementById('itemUrl');
@@ -140,7 +140,6 @@ function openItemModal(id = null) {
         priceInput.value = item.price;
         currencySelect.value = item.currency;
         
-        // Atur Preview
         let safePreviewUrl = item.imageUrl;
         if (!safePreviewUrl || safePreviewUrl.includes('<svg')) safePreviewUrl = Storage.FALLBACK_IMAGE;
         
@@ -188,23 +187,38 @@ function previewItemImage(event) {
     });
 }
 
-// Sinkronisasi Link Cerdas
-urlInput.addEventListener('input', (e) => {
+// SINKRONISASI PENGAMBILAN DATA LINK SECARA ASYNCHRONOUS PADA EVENT CHANGE
+urlInput.addEventListener('change', async (e) => {
     const newUrl = e.target.value.trim();
     if (newUrl && newUrl !== itemState.currentUrl && newUrl.startsWith('http')) {
-        const data = Storage.simulateScrapeData(newUrl);
+        
+        // Indikator Loading
+        const originalNamePh = nameInput.placeholder;
+        nameInput.placeholder = "Mengambil data otomatis...";
+        
+        const data = await Storage.fetchScrapeData(newUrl);
 
-        if (!itemState.isManualName) { nameInput.value = data.scrapedName; }
-        if (!itemState.isManualImage && data.scrapedImage !== "") {
+        if (!itemState.isManualName && data.scrapedName) { 
+            nameInput.value = data.scrapedName; 
+        }
+        if (!itemState.isManualImage && data.scrapedImage && data.scrapedImage !== "") {
             imageInput.value = data.scrapedImage;
             const preview = document.getElementById('imagePreview');
             preview.src = data.scrapedImage;
             preview.style.display = 'block';
         }
 
-        priceInput.value = data.scrapedPrice;
-        currencySelect.value = data.scrapedCurrency;
+        if(data.scrapedPrice > 0) {
+            priceInput.value = data.scrapedPrice;
+        }
+        
+        const opts = Array.from(currencySelect.options).map(o => o.value);
+        if (opts.includes(data.scrapedCurrency)) {
+            currencySelect.value = data.scrapedCurrency;
+        }
+
         itemState.currentUrl = newUrl;
+        nameInput.placeholder = originalNamePh;
     }
 });
 
@@ -213,7 +227,7 @@ function saveItem() {
     const price = priceInput.value;
     if(!name || !price) { alert("Nama dan Harga wajib diisi!"); return; }
     
-    // Fallback Generik Otomatis jika kosong
+    // PENGATURAN GAMBAR: Deteksi Gambar Kosong -> Atur Generik Fallback (Shopping Bag)
     let finalImageUrl = itemState.customImageData || imageInput.value.trim();
     if (!finalImageUrl || finalImageUrl === "") {
         finalImageUrl = Storage.FALLBACK_IMAGE;
@@ -234,7 +248,7 @@ function saveItem() {
     UI.closeModal('itemModal');
 }
 
-// Render UI Item Koleksi
+// Render UI Item Koleksi & Fix Kebocoran String Sintaks
 function renderCollection() {
     const content = document.getElementById('board-content');
     const lang = Storage.getLang();
@@ -252,14 +266,13 @@ function renderCollection() {
         if(item.currency==='CNY'||item.currency==='JPY') currencySymbol='¥';
         if(item.currency==='IDR') currencySymbol='Rp';
 
-        // PERBAIKAN: Sanitasi data lama jika menyimpan raw SVG code yang merusak layout HTML
         let safeImageUrl = item.imageUrl;
         if (!safeImageUrl || (safeImageUrl.includes('<svg') && safeImageUrl.includes('data:image'))) {
             safeImageUrl = Storage.FALLBACK_IMAGE;
         }
 
-        // Pencegahan Sintaks Bocor pada atribut alt
-        const safeName = item.name ? item.name.replace(/"/g, '&quot;') : 'Product';
+        // Sanitasi Ekstrim untuk atribut alt (menghindari sintaks bocor ke layar)
+        const safeName = item.name ? item.name.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : 'Product';
 
         html += `
             <div class="item-card">

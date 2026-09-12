@@ -16,39 +16,85 @@ const Storage = {
         window.location.href = 'index.html';
     },
 
-    // PERBAIKAN: Menggunakan aset shopping bag vector lokal yang aman dan bebas dari bug kutip (quotes leak)
-    FALLBACK_IMAGE: 'assets/bag.png',
+    // Aset Fallback Shopping Bag (JPG) sesuai instruksi
+    FALLBACK_IMAGE: 'assets/shopping-bag.jpg',
 
-    // Penanganan Cerdas Simulasi Scraping Link Produk
-    simulateScrapeData: (url) => {
-        const lowerUrl = url.toLowerCase();
-        let productName = "Produk Terpilih";
-        let price = Math.floor(Math.random() * 500) + 10;
-        let currency = 'USD';
-        
-        // Ekstraksi Logika Sederhana berdasarkan Kata Kunci
-        if (lowerUrl.includes('tokopedia') || lowerUrl.includes('tokped')) {
-            productName = "Produk Tokopedia"; price = Math.floor(Math.random() * 500000) + 50000; currency = 'IDR';
-        } else if (lowerUrl.includes('shopee')) {
-            productName = "Barang Shopee"; price = Math.floor(Math.random() * 500000) + 50000; currency = 'IDR';
-        } else if (lowerUrl.includes('amazon')) {
-            productName = "Amazon Item"; price = Math.floor(Math.random() * 200) + 10; currency = 'USD';
-        } else if (lowerUrl.includes('apple')) {
-            productName = "Apple Device"; price = Math.floor(Math.random() * 1000) + 500; currency = 'USD';
-        } else if (lowerUrl.includes('ikea')) {
-            productName = "Furniture IKEA"; price = Math.floor(Math.random() * 200) + 30; currency = 'USD';
-        } else {
-            try { 
-                const domain = new URL(url).hostname.replace('www.', '').split('.')[0];
-                productName = `Produk dari ${domain.charAt(0).toUpperCase() + domain.slice(1)}`;
-            } catch(e){}
+    // Fungsi Pengambil Data Nyata via Link (Real Web Scraping via Open Graph Proxy)
+    fetchScrapeData: async (url) => {
+        try {
+            // Menggunakan Proxy allorigins untuk membypass blokir CORS dari browser
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+            const response = await fetch(proxyUrl);
+            
+            if (!response.ok) throw new Error('Network response error');
+            const data = await response.json();
+            const html = data.contents;
+
+            // Memparsing dokumen HTML hasil unduhan
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            // 1. Ekstrak Nama/Judul Item
+            let title = doc.querySelector('meta[property="og:title"]')?.content || 
+                        doc.querySelector('title')?.innerText || '';
+
+            // 2. Ekstrak Gambar Item (Open Graph atau Twitter Card)
+            let image = doc.querySelector('meta[property="og:image"]')?.content || 
+                        doc.querySelector('meta[name="twitter:image"]')?.content || 
+                        doc.querySelector('img')?.src || '';
+
+            // Perbaikan jika URL gambar yang tertangkap bersifat relatif
+            if (image && image.startsWith('/')) {
+                try {
+                    const urlObj = new URL(url);
+                    image = urlObj.origin + image;
+                } catch(e) {}
+            }
+
+            // 3. Ekstrak Harga (Basic Heuristics & Regex Matching)
+            let price = 0;
+            let currency = 'IDR';
+            
+            const ogPrice = doc.querySelector('meta[property="product:price:amount"]')?.content;
+            const ogCurrency = doc.querySelector('meta[property="product:price:currency"]')?.content;
+
+            if (ogPrice) price = parseFloat(ogPrice);
+            if (ogCurrency) currency = ogCurrency.toUpperCase();
+
+            // Jika meta tidak ketemu, gunakan pencarian teks mendalam (Regex Scanner)
+            if (!price) {
+                const bodyText = doc.body.innerText || "";
+                const rpMatch = bodyText.match(/Rp\s*([\d\.,]+)/i);
+                if (rpMatch) {
+                    price = parseFloat(rpMatch[1].replace(/\./g, '').replace(/,/g, ''));
+                    currency = 'IDR';
+                } else {
+                    const usdMatch = bodyText.match(/\$\s*([\d\.,]+)/);
+                    if (usdMatch) {
+                        price = parseFloat(usdMatch[1].replace(/,/g, ''));
+                        currency = 'USD';
+                    }
+                }
+            }
+
+            return {
+                scrapedName: title ? title.trim() : `Produk dari ${new URL(url).hostname}`,
+                scrapedImage: image || "", // Kosongkan jika gagal agar fallback Shopping Bag terpakai
+                scrapedPrice: price || 0,
+                scrapedCurrency: currency
+            };
+
+        } catch (error) {
+            console.error('Error fetching URL:', error);
+            // Fallback object murni jika gagal proxy (misalnya web diproteksi super ketat)
+            let domain = "Situs Eksternal";
+            try { domain = new URL(url).hostname.replace('www.', ''); } catch(e){}
+            return {
+                scrapedName: `Produk Pilihan ${domain}`,
+                scrapedImage: "",
+                scrapedPrice: 0,
+                scrapedCurrency: 'IDR'
+            };
         }
-
-        return {
-            scrapedName: productName,
-            scrapedImage: "", // Tetap Kosong di Form agar Fallback diproses murni di background saveItem()
-            scrapedPrice: price, 
-            scrapedCurrency: currency
-        };
     }
 };
