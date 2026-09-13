@@ -26,7 +26,7 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
     background: var(--bg-white);
     border-bottom: 1px solid var(--border-color);
     
-    /* Mencegah Navbar hilang/tertekan di Mobile dan membuatnya selalu melekat di atas */
+    /* Mencegah Navbar hilang di Mobile dan membuatnya Sticky */
     flex-shrink: 0;
     position: sticky;
     top: 0;
@@ -197,9 +197,7 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 }
 .empty-suggestion-50:hover { opacity: 1; border-color: var(--primary-red); color: var(--primary-red); background: rgba(220, 38, 38, 0.05); }
 
-
 /* --- CARD AESTHETICS & INLINE FOOTER ALIGNMENTS --- */
-
 .collections-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
 .collection-card {
     background: var(--bg-white); border-radius: 16px; padding: 20px;
@@ -228,7 +226,7 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 .item-link { display: inline-block; font-size: 14px; color: var(--text-gray); font-weight: 600; transition: var(--transition); }
 .item-link:hover { color: var(--primary-red); }
 
-/* Tombol Edit/Delete Inline */
+/* Tombol Edit/Delete Inline (Sejajar dengan Judul Koleksi / Link Item) */
 .card-footer-inline {
     display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: auto;
 }
@@ -278,16 +276,40 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
     .main-navbar { padding: 16px 20px; flex-wrap: nowrap; flex-shrink: 0; width: 100%; }
     .main-navbar .brand-text { font-size: 20px !important; }
     .nav-actions { gap: 8px; }
-    .nav-btn { height: 32px; padding: 0 12px; font-size: 13px; }
+    .nav-btn { height: 34px; padding: 0 14px; font-size: 13px; }
+    .lang-select { padding: 0 28px 0 14px !important; } /* Pad kanan ekstra mencegah panah nabrak teks EN/ID */
+    .custom-select-wrapper::after { right: 12px; }
     
-    /* Hero Mobile (Jarak Lebih Dekat) */
-    .hero { flex-direction: column; text-align: center; padding: 32px 20px; gap: 16px; justify-content: flex-start; flex-shrink: 0;}
-    .hero-content { display: flex; flex-direction: column; align-items: center; width: 100%; gap: 0;}
+    /* Perbaikan Jarak (Spacing) Elemen di Layar HP agar Lebih Rapat */
+    .hero { 
+        flex-direction: column; 
+        text-align: center; 
+        padding: 40px 20px; 
+        gap: 32px; /* Set jarak paksa antar kontainer atas (teks+tombol) dan kontainer bawah (gambar) */
+        justify-content: center; 
+        flex-shrink: 0;
+    }
+    
+    .hero-content { 
+        flex: none; /* Mencegah pelebaran liar yang memisah jarak */
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        width: 100%; 
+        gap: 0;
+    }
     .hero h1 { font-size: 32px; margin-bottom: 16px; line-height: 1.2; }
     
-    /* Jarak button dan gambar didekatkan */
-    .hero-visual { margin-top: 12px; height: 250px; width: 100%; display: flex; justify-content: center; align-items: flex-start; }
-    .mockup-card { width: 150px; padding: 8px; }
+    .hero-visual { 
+        flex: none; /* Mencegah pelebaran liar ke bawah */
+        margin-top: 0; 
+        height: 240px; 
+        width: 100%; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+    }
+    .mockup-card { width: 150px; padding: 8px; position: absolute; }
     .mockup-card.float { transform: translate(30px, 40px); }
     .mockup-card.float:hover { transform: scale(1.05) translate(30px, 40px); }
     
@@ -309,7 +331,7 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
     .board-actions { padding: 0 20px; flex-shrink: 0; }
     .board-content { padding: 0 20px 40px; }
     
-    /* Layout Cards di layar kecil */
+    /* Layout Cards 2 per row di mobile kecil */
     .collections-grid, .items-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
     .item-img { height: 140px; }
     .collection-card-collage { height: 140px; }
