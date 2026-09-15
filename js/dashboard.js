@@ -94,7 +94,6 @@ function toggleCatDropdown(catId) {
     if (ul) ul.classList.toggle('expanded');
 }
 
-// Helper Flatten Items (Menggabungkan item dari kategori + uncategorized)
 function getFlattenedItems(col) {
     let allItems = [...(col.items || [])];
     if (col.categories) {
@@ -134,7 +133,6 @@ function renderSidebar() {
         `;
         li.appendChild(header);
 
-        // Sidebar Hierarki Lengkap (Kategori Expandable -> Items & Uncategorized Items)
         let hasContents = (col.items && col.items.length > 0) || (col.categories && col.categories.length > 0);
         if (hasContents) {
             const ulCol = document.createElement('ul');
@@ -174,7 +172,8 @@ function renderSidebar() {
                             const itemLi = document.createElement('li');
                             itemLi.className = `wl-item`;
                             itemLi.style.padding = '6px 12px';
-                            itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">- ${item.name}</span>`;
+                            // Tanda hubung '-' dihapus dari sini
+                            itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">${item.name}</span>`;
                             ulCat.appendChild(itemLi);
                         });
                         catLi.appendChild(ulCat);
@@ -188,7 +187,8 @@ function renderSidebar() {
                     const itemLi = document.createElement('li');
                     itemLi.className = `wl-item`;
                     itemLi.style.padding = '6px 12px';
-                    itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">- ${item.name}</span>`;
+                    // Tanda hubung '-' dihapus dari sini
+                    itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">${item.name}</span>`;
                     ulCol.appendChild(itemLi);
                 });
             }

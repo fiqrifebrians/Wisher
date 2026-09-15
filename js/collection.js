@@ -56,24 +56,24 @@ window.onload = () => {
     document.getElementById('display-username').innerText = currentUser;
     UI.loadProfileData();
     UI.changeLang(Storage.getLang(), i18nCol);
-    renderSidebar();
+    renderSidebarNav();
     renderCollection();
 };
 
 function changeLang(lang) {
     UI.changeLang(lang, i18nCol);
-    renderSidebar();
+    renderSidebarNav();
     renderCollection();
 }
 
 function saveData() {
     Storage.saveCollections(collections);
-    renderSidebar();
+    renderSidebarNav();
     renderCollection();
 }
 
-function toggleSidebar() { UI.toggleSidebar(); }
 function toggleProfileMenu() { UI.toggleProfileMenu(); }
+function toggleSidebar() { UI.toggleSidebar(); }
 
 // --- TWO-WAY DRAG AND DROP SINKRONISASI ---
 function handleDragStartCol(e, colId) {
@@ -118,7 +118,7 @@ function toggleCatDropdown(catId) {
 }
 
 // Navigasi Sidebar Penuh & Identik Dengan Dashboard
-function renderSidebar() {
+function renderSidebarNav() {
     const listContainer = document.getElementById('sidebar-collections');
     listContainer.innerHTML = '';
     
@@ -186,7 +186,8 @@ function renderSidebar() {
                             const itemLi = document.createElement('li');
                             itemLi.className = `wl-item`;
                             itemLi.style.padding = '6px 12px';
-                            itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">- ${item.name}</span>`;
+                            // Tanda hubung '-' dihapus dari sini
+                            itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">${item.name}</span>`;
                             ulCat.appendChild(itemLi);
                         });
                         catLi.appendChild(ulCat);
@@ -200,7 +201,8 @@ function renderSidebar() {
                     const itemLi = document.createElement('li');
                     itemLi.className = `wl-item`;
                     itemLi.style.padding = '6px 12px';
-                    itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">- ${item.name}</span>`;
+                    // Tanda hubung '-' dihapus dari sini
+                    itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">${item.name}</span>`;
                     ulCol.appendChild(itemLi);
                 });
             }
@@ -215,7 +217,7 @@ function deleteCollectionSidebar(id) {
     if (confirm("Delete this Collection permanently?")) {
         collections = collections.filter(c => c.id !== id);
         saveData();
-        if (id === collectionId) {
+        if (typeof collectionId !== 'undefined' && id === collectionId) {
             window.location.href = 'dashboard.html';
         }
     }
@@ -225,6 +227,7 @@ function openCollectionModal(id = null) {
     editingCollectionId = id;
     UI.openModal('collectionModal');
     const lang = Storage.getLang();
+    
     if (id) {
         const col = collections.find(c => c.id === id);
         document.getElementById('collectionName').value = col.name;
@@ -481,7 +484,6 @@ function saveItem() {
     UI.closeModal('itemModal');
 }
 
-// Helper Rendering Item Grid Bebas Ikon Folder
 function renderItemsGridHtml(itemsArray) {
     if (!itemsArray || itemsArray.length === 0) return '';
     let html = `<div class="items-grid">`;
@@ -522,13 +524,11 @@ function renderItemsGridHtml(itemsArray) {
     return html;
 }
 
-// Render Collection dan Categories Bebas Ikon Folder
 function renderCollection() {
     const content = document.getElementById('board-content');
     const titleEl = document.getElementById('current-collection-title');
     const lang = Storage.getLang();
     
-    // Mode Kategori Terbuka
     if (activeCategoryId) {
         const cat = currentCollection.categories.find(c => c.id === activeCategoryId);
         titleEl.innerHTML = `<span class="breadcrumb-link" onclick="goToCollectionRoot()">${currentCollection.name}</span> <span style="color:var(--text-gray); margin:0 8px;">/</span> ${cat.name}`;
@@ -541,7 +541,6 @@ function renderCollection() {
         return;
     }
 
-    // Mode Root Collection
     titleEl.innerText = currentCollection.name;
     
     let html = '';
@@ -553,7 +552,6 @@ function renderCollection() {
         return;
     }
 
-    // Render Categories
     if (hasCategories) {
         html += `<h3 style="margin-bottom: 16px; color: var(--text-dark); font-size: 18px;">Categories</h3>`;
         html += `<div class="collections-grid" style="margin-bottom: 40px;">`;
@@ -576,7 +574,6 @@ function renderCollection() {
         html += `</div>`;
     }
 
-    // Render Uncategorized Items
     if (hasItems) {
         html += `<h3 style="margin-bottom: 16px; color: var(--text-dark); font-size: 18px;">Uncategorized Items</h3>`;
         html += renderItemsGridHtml(currentCollection.items);
@@ -585,7 +582,6 @@ function renderCollection() {
     content.innerHTML = html;
 }
 
-// AKUN LOGIC
 function openMyAccount() {
     const db = Storage.getUsers();
     const userObj = db.find(u => u.username === currentUser);
