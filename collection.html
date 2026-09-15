@@ -12,7 +12,7 @@
     <!-- Overlay Transparan untuk Tap-Out Sidebar Mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="UI.toggleMobileSidebar()"></div>
 
-    <aside class="sidebar" id="sidebar">
+    <aside class="sidebar collapsed" id="sidebar">
         <div class="sidebar-toggle-btn" onclick="toggleSidebar()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
         </div>
@@ -20,13 +20,11 @@
             <h2 class="brand-text hide-on-collapse">Wisher<span class="dot highlight-dot">.</span></h2>
             <h2 class="brand-icon show-on-collapse" style="display:none; color:#000000;">W<span class="dot" style="color:#ff3b3f !important;">.</span></h2>
         </div>
-        <div class="sidebar-actions hide-on-collapse">
-            <button class="primary-btn" onclick="openCollectionModal()" data-i18n="add_collection">+ Add Collection</button>
-        </div>
-        <div class="menu flex-grow hide-on-collapse">
+        
+        <div class="menu flex-grow hide-on-collapse" style="margin-top:20px;">
             <p class="menu-label" data-i18n="my_collections">My Collections</p>
             <ul id="sidebar-collections">
-                <!-- Dynamically populated via JS for easy navigation -->
+                <!-- Dynamically populated via JS -->
             </ul>
         </div>
         
@@ -46,11 +44,11 @@
         <header class="top-nav">
             <div style="display:flex; justify-content:space-between; align-items:center; width: 100%;">
                 <div style="display:flex; align-items:center; gap: 16px;">
-                    <!-- Hamburger Menu untuk Mobile Layout -->
                     <button class="mobile-hamburger" onclick="UI.toggleMobileSidebar()">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                     </button>
-                    <h1 id="current-collection-title">Loading Collection...</h1>
+                    <!-- Dinamis Diisi: Collection Name / Category Name -->
+                    <h1 id="current-collection-title">Loading...</h1>
                 </div>
                 
                 <div style="display:flex; align-items:center; gap: 16px;">
@@ -66,34 +64,36 @@
         </header>
 
         <div class="board-actions">
+            <!-- Tambahan Tombol Pembuatan Kategori -->
+            <button class="secondary-btn" onclick="openCategoryModal()" style="width: auto;" data-i18n="add_category">+ Add Category</button>
             <button class="primary-btn" onclick="openItemModal()" style="width: auto;" data-i18n="add_item">+ Add Item</button>
         </div>
 
         <div id="board-content" class="board-content">
-            <!-- Dynamically populated Items -->
+            <!-- Dynamically populated Categories & Items -->
         </div>
     </main>
 
-    <!-- Modal Form (Collection) - Untuk Interaksi Tambah Dari Sidebar -->
-    <div id="collectionModal" class="modal-overlay">
+    <!-- Modal Form (Add / Edit Category) -->
+    <div id="categoryModal" class="modal-overlay">
         <div class="modal-content" style="max-width: 400px;">
             <div class="modal-header">
-                <h3 id="collectionModalTitle" data-i18n="add_collection">Add Collection</h3>
-                <span class="close-btn" onclick="UI.closeModal('collectionModal')">&times;</span>
+                <h3 id="categoryModalTitle" data-i18n="add_category">Add Category</h3>
+                <span class="close-btn" onclick="UI.closeModal('categoryModal')">&times;</span>
             </div>
             <div class="modal-body">
                 <div class="input-group">
-                    <label data-i18n="collection_name">Collection Name</label>
-                    <input type="text" id="collectionName" placeholder="E.g., Dream Gadgets">
+                    <label data-i18n="category_name">Category Name</label>
+                    <input type="text" id="categoryName" placeholder="E.g., Shoes, Gadgets...">
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="primary-btn" onclick="saveCollection()" data-i18n="save_collection">Save Collection</button>
+                <button class="primary-btn" onclick="saveCategory()" data-i18n="save_category">Save Category</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Form (Add / Edit Item) -->
+    <!-- Modal Form (Add / Edit Item) dengan Pilihan Kategori -->
     <div id="itemModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -140,6 +140,14 @@
                         <label data-i18n="price">Price</label>
                         <input type="number" id="itemPrice" placeholder="0">
                     </div>
+                </div>
+
+                <!-- Dropdown Pemilihan Kategori (Opsional) -->
+                <div class="input-group">
+                    <label data-i18n="select_category">Select Category</label>
+                    <select id="itemCategory">
+                        <!-- Diisi Dinamis oleh JS -->
+                    </select>
                 </div>
             </div>
             <div class="modal-footer">

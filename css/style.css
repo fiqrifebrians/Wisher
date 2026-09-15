@@ -25,13 +25,7 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
     padding: 20px 40px; 
     background: var(--bg-white);
     border-bottom: 1px solid var(--border-color);
-    
-    /* Mencegah Navbar hilang di Mobile dan membuatnya Sticky */
-    flex-shrink: 0;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    width: 100%;
+    flex-shrink: 0; position: sticky; top: 0; z-index: 1000; width: 100%;
 }
 
 .brand { display: flex; align-items: center; margin: 0; margin-bottom: 32px; }
@@ -167,6 +161,7 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
     border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text-gray); transition: var(--transition);
 }
 .wl-item:hover { background: var(--bg-light); color: var(--text-dark); }
+.wl-item.cat-label { color: var(--primary-red); font-weight: 600; }
 
 /* Sidebar Profile */
 .sidebar-profile { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-color); position: relative; }
@@ -190,6 +185,10 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 .board-actions { padding: 0 40px; display: flex; gap: 12px; margin-bottom: 24px; align-items: center; flex-shrink: 0; }
 .board-content { padding: 0 40px 40px; }
 
+/* Breadcrumb Navigation */
+.breadcrumb-link { color: var(--text-gray); cursor: pointer; transition: var(--transition); }
+.breadcrumb-link:hover { color: var(--primary-red); }
+
 /* 50% Opacity Empty State */
 .empty-suggestion-50 {
     width: 100%; padding: 40px; border: 2px dashed var(--text-gray); background: transparent; border-radius: 16px; text-align: center;
@@ -202,11 +201,13 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 .collection-card {
     background: var(--bg-white); border-radius: 16px; padding: 20px;
     box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);
-    cursor: grab; transition: var(--transition); display: flex;
+    cursor: pointer; transition: var(--transition); display: flex;
     flex-direction: column; text-align: left; position: relative;
 }
-.collection-card:active { cursor: grabbing; }
+.collection-card.draggable:active { cursor: grabbing; }
 .collection-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--primary-red); }
+
+.folder-icon { font-size: 40px; margin-bottom: 12px; color: var(--primary-red); line-height: 1; }
 
 .collection-card-collage { width: 100%; aspect-ratio: 1 / 1; border-radius: 12px; overflow: hidden; display: grid; gap: 2px; margin-bottom: 16px; background: var(--bg-light); }
 .collage-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
@@ -226,26 +227,14 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 .item-link { display: inline-block; font-size: 14px; color: var(--text-gray); font-weight: 600; transition: var(--transition); }
 .item-link:hover { color: var(--primary-red); }
 
-/* Tombol Edit/Delete Inline (Sejajar dengan Judul Koleksi / Link Item) */
-.card-footer-inline {
-    display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: auto;
-}
+/* Tombol Edit/Delete Inline */
+.card-footer-inline { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: auto; }
 .card-text-info { text-align: left; display: flex; flex-direction: column; justify-content: center; }
 .card-text-info h3 { font-size: 18px; color: var(--text-dark); margin: 0 0 4px 0 !important; }
 .card-text-info p { font-size: 13px; color: var(--text-gray); margin: 0; font-weight: 500; }
-
-.item-footer-inline {
-    display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 16px;
-}
-
+.item-footer-inline { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 16px; }
 .card-actions-inline { display: flex; gap: 8px; align-items: center; }
-
-.card-action-btn {
-    background: transparent; border: 1px solid var(--border-color);
-    border-radius: 8px; padding: 6px; color: var(--text-gray);
-    cursor: pointer; transition: var(--transition);
-    display: flex; align-items: center; justify-content: center;
-}
+.card-action-btn { background: transparent; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px; color: var(--text-gray); cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; }
 .card-action-btn:hover { background: var(--bg-light); color: var(--primary-red); border-color: var(--primary-red); }
 .card-action-btn.delete-btn:hover { color: #dc2626; border-color: #dc2626; background: #fee2e2; }
 
@@ -272,57 +261,29 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
 .sidebar-overlay.active { display: block; }
 
 @media (max-width: 768px) {
-    /* Navbar Mobile Landing Page */
+    /* Landing & Auth Mobile */
     .main-navbar { padding: 16px 20px; flex-wrap: nowrap; flex-shrink: 0; width: 100%; }
     .main-navbar .brand-text { font-size: 20px !important; }
     .nav-actions { gap: 8px; }
-    .nav-btn { height: 34px; padding: 0 14px; font-size: 13px; }
-    .lang-select { padding: 0 28px 0 14px !important; } /* Pad kanan ekstra mencegah panah nabrak teks EN/ID */
+    .nav-btn { height: 32px; padding: 0 12px; font-size: 13px; }
+    .lang-select { padding: 0 28px 0 14px !important; } 
     .custom-select-wrapper::after { right: 12px; }
     
-    /* Perbaikan Jarak (Spacing) Elemen di Layar HP agar Lebih Rapat */
-    .hero { 
-        flex-direction: column; 
-        text-align: center; 
-        padding: 40px 20px; 
-        gap: 32px; /* Set jarak paksa antar kontainer atas (teks+tombol) dan kontainer bawah (gambar) */
-        justify-content: center; 
-        flex-shrink: 0;
-    }
-    
-    .hero-content { 
-        flex: none; /* Mencegah pelebaran liar yang memisah jarak */
-        display: flex; 
-        flex-direction: column; 
-        align-items: center; 
-        width: 100%; 
-        gap: 0;
-    }
+    .hero { flex-direction: column; text-align: center; padding: 40px 20px; gap: 32px; justify-content: center; flex-shrink: 0;}
+    .hero-content { flex: none; display: flex; flex-direction: column; align-items: center; width: 100%; gap: 0;}
     .hero h1 { font-size: 32px; margin-bottom: 16px; line-height: 1.2; }
     
-    .hero-visual { 
-        flex: none; /* Mencegah pelebaran liar ke bawah */
-        margin-top: 0; 
-        height: 240px; 
-        width: 100%; 
-        display: flex; 
-        justify-content: center; 
-        align-items: center; 
-    }
+    .hero-visual { flex: none; margin-top: 0; height: 240px; width: 100%; display: flex; justify-content: center; align-items: center; }
     .mockup-card { width: 150px; padding: 8px; position: absolute; }
     .mockup-card.float { transform: translate(30px, 40px); }
     .mockup-card.float:hover { transform: scale(1.05) translate(30px, 40px); }
     
-    /* Auth Mobile */
     .auth-container { padding: 24px; margin: 16px; width: auto; max-width: calc(100% - 32px); }
     .lang-switcher-auth { top: 16px; right: 16px; }
 
     /* Dashboard Mobile */
     .dashboard-body { flex-direction: column; }
-    .sidebar { 
-        position: fixed; top: 0; left: 0; height: 100%; z-index: 2000; 
-        transform: translateX(-100%); width: 280px !important; 
-    }
+    .sidebar { position: fixed; top: 0; left: 0; height: 100%; z-index: 2000; transform: translateX(-100%); width: 280px !important; }
     .sidebar.mobile-open { transform: translateX(0); }
     .sidebar-toggle-btn { display: none; }
     .mobile-hamburger { display: block; }
@@ -331,7 +292,6 @@ button, a, .action-link, .item-link, .secondary-btn, .primary-btn { text-decorat
     .board-actions { padding: 0 20px; flex-shrink: 0; }
     .board-content { padding: 0 20px 40px; }
     
-    /* Layout Cards 2 per row di mobile kecil */
     .collections-grid, .items-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
     .item-img { height: 140px; }
     .collection-card-collage { height: 140px; }
