@@ -12,13 +12,13 @@ if (!currentCollection) {
     window.location.href = 'dashboard.html';
 }
 
-// Inisialisasi struktur baru pencegah error jika format lama masih terpakai
 if (!currentCollection.items) currentCollection.items = [];
 if (!currentCollection.categories) currentCollection.categories = [];
 
-let activeCategoryId = null; // null berarti sedang di luar (root collection)
+let activeCategoryId = null; 
 let editingItemId = null;
 let editingCategoryId = null;
+let draggedColId = null; 
 
 const i18nCol = {
     en: {
@@ -31,7 +31,7 @@ const i18nCol = {
         confirm_new_password: "Confirm New Password", cancel: "Cancel", save_changes: "Save Changes",
         upload_device: "Upload from Devices", pass_criteria: "Password requires min 9 chars, 1 uppercase, 1 lowercase, 1 number.",
         item_info: "Paste a link to auto-generate, or fill manually.",
-        empty_item: "Add Item"
+        empty_item: "Add Item", add_collection: "+ Add Collection", collection_name: "Collection Name", save_collection: "Save Collection"
     },
     id: {
         my_collections: "Koleksi Saya", my_account: "Akun Saya", sign_out: "Keluar", back: "&larr; Kembali",
@@ -43,86 +43,214 @@ const i18nCol = {
         confirm_new_password: "Konfirmasi Kata Sandi Baru", cancel: "Batal", save_changes: "Simpan Perubahan",
         upload_device: "Unggah dari Perangkat", pass_criteria: "Minimal 9 karakter, 1 huruf besar, 1 huruf kecil, 1 angka.",
         item_info: "Masukkan tautan untuk otomatisasi, atau isi manual.",
-        empty_item: "Tambah Item"
+        empty_item: "Tambah Item", add_collection: "+ Tambah Koleksi", collection_name: "Nama Koleksi", save_collection: "Simpan Koleksi"
     }
 };
 
 const ICON_EDIT = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
 const ICON_DELETE = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
 const ICON_CHEVRON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-const ICON_FOLDER = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary-red)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:8px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>`;
 
 window.onload = () => {
+    document.getElementById('current-collection-title').innerText = currentCollection.name;
     document.getElementById('display-username').innerText = currentUser;
     UI.loadProfileData();
     UI.changeLang(Storage.getLang(), i18nCol);
-    renderSidebarNav();
+    renderSidebar();
     renderCollection();
 };
 
 function changeLang(lang) {
     UI.changeLang(lang, i18nCol);
-    renderSidebarNav();
+    renderSidebar();
     renderCollection();
 }
 
 function saveData() {
     Storage.saveCollections(collections);
-    renderSidebarNav();
+    renderSidebar();
     renderCollection();
 }
 
 function toggleSidebar() { UI.toggleSidebar(); }
+function toggleProfileMenu() { UI.toggleProfileMenu(); }
+
+// --- TWO-WAY DRAG AND DROP SINKRONISASI ---
+function handleDragStartCol(e, colId) {
+    draggedColId = colId;
+    e.dataTransfer.effectAllowed = 'move';
+    setTimeout(() => e.target.classList.add('dragging'), 0);
+}
+function handleDragOverCol(e) {
+    e.preventDefault();
+    e.currentTarget.classList.add('drag-over');
+}
+function handleDragLeaveCol(e) {
+    e.currentTarget.classList.remove('drag-over');
+}
+function handleDropCol(e, targetColId) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+    if (!draggedColId || draggedColId === targetColId) return;
+
+    const draggedIndex = collections.findIndex(c => c.id === draggedColId);
+    const targetIndex = collections.findIndex(c => c.id === targetColId);
+
+    const [movedCol] = collections.splice(draggedIndex, 1);
+    collections.splice(targetIndex, 0, movedCol);
+
+    saveData(); 
+}
+function handleDragEndCol(e) {
+    e.target.classList.remove('dragging');
+    draggedColId = null;
+    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+}
+
 function toggleColDropdown(colId) {
     const ul = document.getElementById(`item-list-${colId}`);
     if (ul) ul.classList.toggle('expanded');
 }
 
-// Navigasi Sidebar - Tampilkan Flat Semua Item untuk mempermudah visibilitas Sidebar
-function renderSidebarNav() {
+function toggleCatDropdown(catId) {
+    const ul = document.getElementById(`cat-items-${catId}`);
+    if (ul) ul.classList.toggle('expanded');
+}
+
+// Navigasi Sidebar Penuh & Identik Dengan Dashboard
+function renderSidebar() {
     const listContainer = document.getElementById('sidebar-collections');
     listContainer.innerHTML = '';
+    
+    const activeColId = typeof collectionId !== 'undefined' ? collectionId : null;
+
     collections.forEach(col => {
         const li = document.createElement('li');
         li.className = 'col-item-wrapper';
+        li.setAttribute('draggable', 'true');
+        li.ondragstart = (e) => handleDragStartCol(e, col.id);
+        li.ondragover = handleDragOverCol;
+        li.ondragleave = handleDragLeaveCol;
+        li.ondrop = (e) => handleDropCol(e, col.id);
+        li.ondragend = handleDragEndCol;
+        
         const header = document.createElement('div');
-        header.className = `col-header ${col.id === collectionId ? 'active' : ''}`;
+        header.className = `col-header ${col.id === activeColId ? 'active' : ''}`;
         header.innerHTML = `
             <span class="hide-on-collapse" style="flex:1;" onclick="window.location.href='collection.html?id=${col.id}'">${col.name}</span>
             <span class="show-on-collapse" style="display:none;" onclick="window.location.href='collection.html?id=${col.id}'" title="${(col.name || '').replace(/"/g, '&quot;')}">${col.name.charAt(0)}</span>
             <div class="action-icons hide-on-collapse">
                 <button class="icon-btn" onclick="toggleColDropdown('${col.id}')" title="Expand">${ICON_CHEVRON}</button>
+                <button class="icon-btn" onclick="openCollectionModal('${col.id}')" title="Edit">${ICON_EDIT}</button>
+                <button class="icon-btn delete" onclick="deleteCollectionSidebar('${col.id}')" title="Delete">${ICON_DELETE}</button>
             </div>
         `;
         li.appendChild(header);
 
-        // Sidebar mengekspos semua category dan item sebagai list sederhana di bawah Collection
         let hasContents = (col.items && col.items.length > 0) || (col.categories && col.categories.length > 0);
         if (hasContents) {
-            const ul = document.createElement('ul');
-            ul.id = `item-list-${col.id}`;
-            ul.className = `wl-list hide-on-collapse ${col.id === collectionId ? 'expanded' : ''}`; 
+            const ulCol = document.createElement('ul');
+            ulCol.id = `item-list-${col.id}`;
+            ulCol.className = `wl-list hide-on-collapse ${col.id === activeColId ? 'expanded' : ''}`; 
             
-            if (col.categories) {
+            if (col.categories && col.categories.length > 0) {
                 col.categories.forEach(cat => {
                     const catLi = document.createElement('li');
-                    catLi.className = `wl-item cat-label`;
-                    catLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(cat.name || '').replace(/"/g, '&quot;')}">📁 ${cat.name}</span>`;
-                    ul.appendChild(catLi);
+                    catLi.className = `wl-item`;
+                    catLi.style.flexDirection = 'column';
+                    catLi.style.alignItems = 'flex-start';
+                    catLi.style.padding = '0';
+                    catLi.style.marginBottom = '4px';
+
+                    const catHeader = document.createElement('div');
+                    catHeader.style.display = 'flex';
+                    catHeader.style.justifyContent = 'space-between';
+                    catHeader.style.alignItems = 'center';
+                    catHeader.style.width = '100%';
+                    catHeader.style.padding = '6px 12px';
+                    catHeader.style.cursor = 'pointer';
+                    catHeader.innerHTML = `
+                        <span style="flex:1; font-weight:600; color:var(--primary-red);" onclick="toggleCatDropdown('${cat.id}')">${cat.name}</span>
+                        <button class="icon-btn" onclick="toggleCatDropdown('${cat.id}')" title="Expand" style="padding:2px;">${ICON_CHEVRON}</button>
+                    `;
+                    catLi.appendChild(catHeader);
+
+                    if (cat.items && cat.items.length > 0) {
+                        const ulCat = document.createElement('ul');
+                        ulCat.id = `cat-items-${cat.id}`;
+                        ulCat.className = `wl-list`;
+                        ulCat.style.paddingLeft = '16px';
+                        ulCat.style.marginTop = '0';
+                        
+                        cat.items.forEach(item => {
+                            const itemLi = document.createElement('li');
+                            itemLi.className = `wl-item`;
+                            itemLi.style.padding = '6px 12px';
+                            itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">- ${item.name}</span>`;
+                            ulCat.appendChild(itemLi);
+                        });
+                        catLi.appendChild(ulCat);
+                    }
+                    ulCol.appendChild(catLi);
                 });
             }
-            if (col.items) {
+            
+            if (col.items && col.items.length > 0) {
                 col.items.forEach(item => {
                     const itemLi = document.createElement('li');
                     itemLi.className = `wl-item`;
+                    itemLi.style.padding = '6px 12px';
                     itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">- ${item.name}</span>`;
-                    ul.appendChild(itemLi);
+                    ulCol.appendChild(itemLi);
                 });
             }
-            li.appendChild(ul);
+            li.appendChild(ulCol);
         }
+
         listContainer.appendChild(li);
     });
+}
+
+function deleteCollectionSidebar(id) {
+    if (confirm("Delete this Collection permanently?")) {
+        collections = collections.filter(c => c.id !== id);
+        saveData();
+        if (id === collectionId) {
+            window.location.href = 'dashboard.html';
+        }
+    }
+}
+
+function openCollectionModal(id = null) {
+    editingCollectionId = id;
+    UI.openModal('collectionModal');
+    const lang = Storage.getLang();
+    if (id) {
+        const col = collections.find(c => c.id === id);
+        document.getElementById('collectionName').value = col.name;
+        document.getElementById('collectionModalTitle').innerText = 'Edit Collection';
+    } else {
+        document.getElementById('collectionName').value = '';
+        document.getElementById('collectionModalTitle').innerText = i18nCol[lang].add_collection;
+    }
+}
+
+function saveCollection() {
+    const name = document.getElementById('collectionName').value.trim();
+    if(!name) return;
+    
+    if (editingCollectionId) {
+        const col = collections.find(c => c.id === editingCollectionId);
+        col.name = name;
+        if (editingCollectionId === collectionId) {
+            document.getElementById('current-collection-title').innerText = name;
+            currentCollection.name = name;
+        }
+    } else {
+        collections.push({ id: 'col_' + Date.now(), name: name, items: [], categories: [] });
+    }
+    saveData();
+    UI.closeModal('collectionModal');
 }
 
 // --- LOGIKA CATEGORY ---
@@ -161,7 +289,7 @@ function deleteCategory(e, id) {
     e.stopPropagation();
     if (confirm("Delete this Category and all its items permanently?")) {
         currentCollection.categories = currentCollection.categories.filter(c => c.id !== id);
-        if (activeCategoryId === id) activeCategoryId = null; // Kembali ke root jika dihapus saat dibuka
+        if (activeCategoryId === id) activeCategoryId = null;
         saveData();
     }
 }
@@ -190,7 +318,6 @@ function openItemModal(id = null) {
     editingItemId = id;
     const lang = Storage.getLang();
     
-    // Populate Dropdown Kategori
     const catSelect = document.getElementById('itemCategory');
     catSelect.innerHTML = `<option value="uncategorized">${i18nCol[lang].uncategorized}</option>`;
     currentCollection.categories.forEach(c => {
@@ -198,7 +325,6 @@ function openItemModal(id = null) {
     });
 
     if (id) {
-        // Cari Item (baik di root atau di dalam kategori)
         let item = null;
         let itemCatId = 'uncategorized';
         
@@ -241,7 +367,7 @@ function openItemModal(id = null) {
         document.getElementById('itemImageFile').value = '';
         priceInput.value = ''; document.getElementById('imagePreview').style.display = 'none';
         document.getElementById('itemModalTitle').innerText = i18nCol[lang].add_item;
-        catSelect.value = activeCategoryId ? activeCategoryId : 'uncategorized'; // Pilih otomatis
+        catSelect.value = activeCategoryId ? activeCategoryId : 'uncategorized';
         itemState = { isManualName: false, isManualImage: false, currentUrl: "", customImageData: null };
     }
     UI.openModal('itemModal');
@@ -329,7 +455,6 @@ function saveItem() {
     };
 
     if (editingItemId) {
-        // Hapus dari lokasi lama
         let found = false;
         const rootIdx = currentCollection.items.findIndex(i => i.id === editingItemId);
         if(rootIdx > -1) { currentCollection.items.splice(rootIdx, 1); found = true; }
@@ -339,7 +464,6 @@ function saveItem() {
                 if(catIdx > -1) { c.items.splice(catIdx, 1); found = true; break; }
             }
         }
-        // Masukkan ke lokasi baru
         if (catId === 'uncategorized') currentCollection.items.push(newItemData);
         else {
             const targetCat = currentCollection.categories.find(c => c.id === catId);
@@ -357,7 +481,7 @@ function saveItem() {
     UI.closeModal('itemModal');
 }
 
-// Fungsi Bantuan Rendering HTML Grid Item
+// Helper Rendering Item Grid Bebas Ikon Folder
 function renderItemsGridHtml(itemsArray) {
     if (!itemsArray || itemsArray.length === 0) return '';
     let html = `<div class="items-grid">`;
@@ -398,16 +522,15 @@ function renderItemsGridHtml(itemsArray) {
     return html;
 }
 
-// Render UI Utama Collection & Categories
+// Render Collection dan Categories Bebas Ikon Folder
 function renderCollection() {
     const content = document.getElementById('board-content');
     const titleEl = document.getElementById('current-collection-title');
     const lang = Storage.getLang();
     
-    // RENDER: Jika Sedang Di Dalam Category Tertentu
+    // Mode Kategori Terbuka
     if (activeCategoryId) {
         const cat = currentCollection.categories.find(c => c.id === activeCategoryId);
-        // Breadcrumb Trail
         titleEl.innerHTML = `<span class="breadcrumb-link" onclick="goToCollectionRoot()">${currentCollection.name}</span> <span style="color:var(--text-gray); margin:0 8px;">/</span> ${cat.name}`;
         
         if (cat.items.length === 0) {
@@ -418,7 +541,7 @@ function renderCollection() {
         return;
     }
 
-    // RENDER: Root Collection View
+    // Mode Root Collection
     titleEl.innerText = currentCollection.name;
     
     let html = '';
@@ -430,14 +553,13 @@ function renderCollection() {
         return;
     }
 
-    // 1. Render Categories (sebagai Folder/Card)
+    // Render Categories
     if (hasCategories) {
         html += `<h3 style="margin-bottom: 16px; color: var(--text-dark); font-size: 18px;">Categories</h3>`;
         html += `<div class="collections-grid" style="margin-bottom: 40px;">`;
         currentCollection.categories.forEach(cat => {
             html += `
                 <div class="collection-card" onclick="enterCategory('${cat.id}')">
-                    ${ICON_FOLDER}
                     <div class="card-footer-inline" style="margin-top: 0;">
                         <div class="card-text-info">
                             <h3>${cat.name}</h3>
@@ -454,7 +576,7 @@ function renderCollection() {
         html += `</div>`;
     }
 
-    // 2. Render Uncategorized Items
+    // Render Uncategorized Items
     if (hasItems) {
         html += `<h3 style="margin-bottom: 16px; color: var(--text-dark); font-size: 18px;">Uncategorized Items</h3>`;
         html += renderItemsGridHtml(currentCollection.items);

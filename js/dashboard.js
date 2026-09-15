@@ -89,38 +89,110 @@ function toggleColDropdown(colId) {
     if (ul) ul.classList.toggle('expanded');
 }
 
+function toggleCatDropdown(catId) {
+    const ul = document.getElementById(`cat-items-${catId}`);
+    if (ul) ul.classList.toggle('expanded');
+}
+
+// Helper Flatten Items (Menggabungkan item dari kategori + uncategorized)
+function getFlattenedItems(col) {
+    let allItems = [...(col.items || [])];
+    if (col.categories) {
+        col.categories.forEach(cat => {
+            if(cat.items) allItems = allItems.concat(cat.items);
+        });
+    }
+    return allItems;
+}
+
 function renderSidebar() {
     const listContainer = document.getElementById('sidebar-collections');
     listContainer.innerHTML = '';
 
+    const activeColId = typeof collectionId !== 'undefined' ? collectionId : null;
+
     collections.forEach(col => {
         const li = document.createElement('li');
         li.className = 'col-item-wrapper';
+        li.setAttribute('draggable', 'true');
+        li.ondragstart = (e) => handleDragStartCol(e, col.id);
+        li.ondragover = handleDragOverCol;
+        li.ondragleave = handleDragLeaveCol;
+        li.ondrop = (e) => handleDropCol(e, col.id);
+        li.ondragend = handleDragEndCol;
         
         const header = document.createElement('div');
-        header.className = `col-header`;
+        header.className = `col-header ${col.id === activeColId ? 'active' : ''}`;
         header.innerHTML = `
             <span class="hide-on-collapse" style="flex:1;" onclick="window.location.href='collection.html?id=${col.id}'">${col.name}</span>
             <span class="show-on-collapse" style="display:none;" onclick="window.location.href='collection.html?id=${col.id}'" title="${(col.name || '').replace(/"/g, '&quot;')}">${col.name.charAt(0)}</span>
             <div class="action-icons hide-on-collapse">
                 <button class="icon-btn" onclick="toggleColDropdown('${col.id}')" title="Expand">${ICON_CHEVRON}</button>
                 <button class="icon-btn" onclick="openCollectionModal('${col.id}')" title="Edit">${ICON_EDIT}</button>
-                <button class="icon-btn delete" onclick="deleteCollection('${col.id}')" title="Delete">${ICON_DELETE}</button>
+                <button class="icon-btn delete" onclick="deleteCollectionSidebar('${col.id}')" title="Delete">${ICON_DELETE}</button>
             </div>
         `;
         li.appendChild(header);
 
-        if (col.items && col.items.length > 0) {
-            const ul = document.createElement('ul');
-            ul.id = `item-list-${col.id}`;
-            ul.className = `wl-list hide-on-collapse`;
-            col.items.forEach(item => {
-                const itemLi = document.createElement('li');
-                itemLi.className = `wl-item`;
-                itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">${item.name}</span>`;
-                ul.appendChild(itemLi);
-            });
-            li.appendChild(ul);
+        // Sidebar Hierarki Lengkap (Kategori Expandable -> Items & Uncategorized Items)
+        let hasContents = (col.items && col.items.length > 0) || (col.categories && col.categories.length > 0);
+        if (hasContents) {
+            const ulCol = document.createElement('ul');
+            ulCol.id = `item-list-${col.id}`;
+            ulCol.className = `wl-list hide-on-collapse ${col.id === activeColId ? 'expanded' : ''}`; 
+            
+            if (col.categories && col.categories.length > 0) {
+                col.categories.forEach(cat => {
+                    const catLi = document.createElement('li');
+                    catLi.className = `wl-item`;
+                    catLi.style.flexDirection = 'column';
+                    catLi.style.alignItems = 'flex-start';
+                    catLi.style.padding = '0';
+                    catLi.style.marginBottom = '4px';
+
+                    const catHeader = document.createElement('div');
+                    catHeader.style.display = 'flex';
+                    catHeader.style.justifyContent = 'space-between';
+                    catHeader.style.alignItems = 'center';
+                    catHeader.style.width = '100%';
+                    catHeader.style.padding = '6px 12px';
+                    catHeader.style.cursor = 'pointer';
+                    catHeader.innerHTML = `
+                        <span style="flex:1; font-weight:600; color:var(--primary-red);" onclick="toggleCatDropdown('${cat.id}')">${cat.name}</span>
+                        <button class="icon-btn" onclick="toggleCatDropdown('${cat.id}')" title="Expand" style="padding:2px;">${ICON_CHEVRON}</button>
+                    `;
+                    catLi.appendChild(catHeader);
+
+                    if (cat.items && cat.items.length > 0) {
+                        const ulCat = document.createElement('ul');
+                        ulCat.id = `cat-items-${cat.id}`;
+                        ulCat.className = `wl-list`;
+                        ulCat.style.paddingLeft = '16px';
+                        ulCat.style.marginTop = '0';
+                        
+                        cat.items.forEach(item => {
+                            const itemLi = document.createElement('li');
+                            itemLi.className = `wl-item`;
+                            itemLi.style.padding = '6px 12px';
+                            itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">- ${item.name}</span>`;
+                            ulCat.appendChild(itemLi);
+                        });
+                        catLi.appendChild(ulCat);
+                    }
+                    ulCol.appendChild(catLi);
+                });
+            }
+            
+            if (col.items && col.items.length > 0) {
+                col.items.forEach(item => {
+                    const itemLi = document.createElement('li');
+                    itemLi.className = `wl-item`;
+                    itemLi.style.padding = '6px 12px';
+                    itemLi.innerHTML = `<span style="flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.name || '').replace(/"/g, '&quot;')}">- ${item.name}</span>`;
+                    ulCol.appendChild(itemLi);
+                });
+            }
+            li.appendChild(ulCol);
         }
 
         listContainer.appendChild(li);
@@ -138,13 +210,14 @@ function renderMainContent() {
 
     let html = '<div class="collections-grid">';
     collections.forEach(col => {
-        const itemCount = col.items ? col.items.length : 0;
+        const flatItems = getFlattenedItems(col);
+        const itemCount = flatItems.length;
         
         let collageHtml = `<div class="collection-card-collage collage-${Math.min(itemCount, 4)}">`;
         if (itemCount === 0) {
             collageHtml += `<img src="${Storage.FALLBACK_IMAGE}" class="collage-img" alt="Empty" style="padding: 24px; object-fit: contain;">`;
         } else {
-            const displayItems = col.items.slice(0, 4);
+            const displayItems = flatItems.slice(0, 4);
             displayItems.forEach((item, idx) => {
                 let safeImageUrl = item.imageUrl;
                 if (!safeImageUrl || (safeImageUrl.includes('<svg') && safeImageUrl.includes('data:image'))) {
@@ -156,7 +229,6 @@ function renderMainContent() {
         }
         collageHtml += `</div>`;
 
-        // Integrasi Tampilan Inline Baru untuk Dashboard Collection Card
         html += `
             <div class="collection-card" draggable="true" 
                 ondragstart="handleDragStartCol(event, '${col.id}')"
@@ -166,7 +238,7 @@ function renderMainContent() {
                 ondragend="handleDragEndCol(event)"
                 onclick="window.location.href='collection.html?id=${col.id}'">
                 ${collageHtml}
-                <div class="card-footer-inline">
+                <div class="card-footer-inline" style="margin-top: 0;">
                     <div class="card-text-info">
                         <h3>${col.name}</h3>
                         <p>${itemCount} Items</p>
@@ -184,13 +256,16 @@ function renderMainContent() {
 }
 
 // --- LOGIKA HAPUS & MODAL COLLECTION ---
-function deleteCollection(id) {
+function deleteCollectionSidebar(id) {
     if (confirm("Delete this Collection permanently?")) {
         collections = collections.filter(c => c.id !== id);
         saveData();
+        if (typeof collectionId !== 'undefined' && id === collectionId) {
+            window.location.href = 'dashboard.html';
+        }
     }
 }
-function deleteCollectionMain(e, id) { e.stopPropagation(); deleteCollection(id); }
+function deleteCollectionMain(e, id) { e.stopPropagation(); deleteCollectionSidebar(id); }
 
 function openCollectionModal(id = null) {
     editingCollectionId = id;
@@ -217,7 +292,7 @@ function saveCollection() {
         const col = collections.find(c => c.id === editingCollectionId);
         col.name = name;
     } else {
-        collections.push({ id: 'col_' + Date.now(), name: name, items: [] });
+        collections.push({ id: 'col_' + Date.now(), name: name, items: [], categories: [] });
     }
     saveData();
     UI.closeModal('collectionModal');
